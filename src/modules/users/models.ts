@@ -12,7 +12,7 @@ export class AddUserBodyModel {
   @IsEnum(RoleEnum)
   role: RoleEnum;
 }
-export type AddUserResponseModel = void;
+export type AddUserResponseModel = null;
 
 //=====================================================================================================================
 // getUserSelf

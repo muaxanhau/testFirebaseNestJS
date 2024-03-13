@@ -7,7 +7,8 @@ export class ItemsController {
   constructor(private readonly itemsService: ItemsService) {}
 
   @Get()
-  getAllItems(): Promise<GetAllItemsResponseModel> {
-    return this.itemsService.getAllItems();
+  async getAllItems(): Promise<GetAllItemsResponseModel> {
+    const data = await this.itemsService.getAllItems();
+    return data;
   }
 }

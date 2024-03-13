@@ -47,7 +47,7 @@ export class DeleteCategoryParamModel {
   @IsString()
   id: string;
 }
-export type DeleteCategoryResponseModel = void;
+export type DeleteCategoryResponseModel = null;
 
 //=====================================================================================================================
 // updateCategory
@@ -69,4 +69,4 @@ export class UpdateCategoryBodyModel {
   @IsString()
   description?: string;
 }
-export type UpdateCategoryResponseModel = void;
+export type UpdateCategoryResponseModel = null;

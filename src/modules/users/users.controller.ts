@@ -7,15 +7,17 @@ import {
   GetUserSelfHeadersModel,
   GetUserSelfResponseModel,
 } from './models';
+import { utils } from 'src/utils';
 
 @Controller('/users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  addUser(@Body() body: AddUserBodyModel): Promise<AddUserResponseModel> {
+  async addUser(@Body() body: AddUserBodyModel): Promise<AddUserResponseModel> {
     const { id, ...user } = body;
-    return this.usersService.addUser(id, user);
+    await this.usersService.addUser(id, user);
+    return null;
   }
 
   @Get('/self')
@@ -25,6 +27,7 @@ export class UsersController {
     const token = headers['firebase-token'];
 
     const id = await this.usersService.getUserIdFromToken(token);
-    return this.usersService.getUser(id);
+    const user = await this.usersService.getUser(id);
+    return user;
   }
 }

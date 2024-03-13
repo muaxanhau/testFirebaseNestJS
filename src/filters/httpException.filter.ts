@@ -5,13 +5,13 @@ import {
   HttpException,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { ExceptionResponseBaseModel } from 'src/models';
+import { ErrorResponseBaseModel } from 'src/models';
 
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
   catch(exception: HttpException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
-    const response = ctx.getResponse<Response<ExceptionResponseBaseModel>>();
+    const response = ctx.getResponse<Response<ErrorResponseBaseModel>>();
     const request = ctx.getRequest<Request>();
     const status = exception.getStatus();
     const errorMessage =
@@ -25,6 +25,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
       path: request.url,
       timestamp: new Date(),
       message: errorMessage,
+      data: null,
     });
   }
 }

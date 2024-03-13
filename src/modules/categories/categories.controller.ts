@@ -7,7 +7,6 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { CategoryModel } from 'src/models';
 import { CategoriesService, ItemsService } from 'src/services';
 import {
   AddCategoryResponseModel,
@@ -31,8 +30,9 @@ export class CategoriesController {
   ) {}
 
   @Get()
-  getAllCategories(): Promise<GetAllCategoriesResponseModel> {
-    return this.categoriesService.getAllCategories();
+  async getAllCategories(): Promise<GetAllCategoriesResponseModel> {
+    const data = await this.categoriesService.getAllCategories();
+    return data;
   }
 
   @Get('/items')
@@ -55,34 +55,38 @@ export class CategoriesController {
   }
 
   @Get(':id')
-  getCategory(
+  async getCategory(
     @Param() param: GetCategoryByIdParamModel,
   ): Promise<GetCategoryByIdResponseModel> {
     const { id } = param;
-    return this.categoriesService.getCategory(id);
+    const data = await this.categoriesService.getCategory(id);
+    return data;
   }
 
   @Post()
-  addCategory(
+  async addCategory(
     @Body() body: AddCategoryBodyModel,
   ): Promise<AddCategoryResponseModel> {
-    return this.categoriesService.addCategory(body);
+    const data = await this.categoriesService.addCategory(body);
+    return data;
   }
 
   @Delete(':id')
-  deleteCategory(
+  async deleteCategory(
     @Param() param: DeleteCategoryParamModel,
   ): Promise<DeleteCategoryResponseModel> {
     const { id } = param;
-    return this.categoriesService.deleteCategory(id);
+    await this.categoriesService.deleteCategory(id);
+    return null;
   }
 
   @Put(':id')
-  updateCategory(
+  async updateCategory(
     @Param() param: UpdateCategoryParamModel,
     @Body() body: UpdateCategoryBodyModel,
   ): Promise<UpdateCategoryResponseModel> {
     const { id } = param;
-    return this.categoriesService.updateCategory(id, body);
+    await this.categoriesService.updateCategory(id, body);
+    return null;
   }
 }
