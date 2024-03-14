@@ -1,3 +1,5 @@
+import { IsNotEmpty, IsString } from 'class-validator';
+import { config } from 'src/config';
 import { Prettify } from 'src/utils';
 
 /**
@@ -23,3 +25,9 @@ export type ErrorResponseBaseModel = ResponseBaseModel<null>;
  *
  */
 export type SuccessResponseBaseModel<T = null> = ResponseBaseModel<T>;
+
+export class HeadersBaseModel {
+  @IsNotEmpty()
+  @IsString()
+  ['firebase-token']: string;
+}

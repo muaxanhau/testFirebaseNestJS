@@ -3,9 +3,9 @@ import { UsersService } from 'src/services';
 import {
   AddUserBodyModel,
   AddUserResponseModel,
-  GetUserSelfHeadersModel,
   GetUserSelfResponseModel,
 } from './models';
+import { HeadersBaseModel } from 'src/models';
 
 @Controller('/users')
 export class UsersController {
@@ -20,7 +20,7 @@ export class UsersController {
 
   @Get('/self')
   async getUserSelf(
-    @Headers() headers: GetUserSelfHeadersModel,
+    @Headers() headers: HeadersBaseModel,
   ): Promise<GetUserSelfResponseModel> {
     const token = headers['firebase-token'];
 

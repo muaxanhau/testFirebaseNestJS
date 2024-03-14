@@ -9,6 +9,7 @@ const environments: EnvironmentsConfigModel = {
     clientEmail:
       'firebase-adminsdk-3p205@testfirebase-fe46e.iam.gserviceaccount.com',
     databaseURL: 'https://testfirebase-fe46e.firebaseio.com',
+    tokenName: 'firebase-token',
   },
   STAGING: {
     enableLog: true,
@@ -16,6 +17,7 @@ const environments: EnvironmentsConfigModel = {
     privateKey: '',
     clientEmail: '',
     databaseURL: '',
+    tokenName: '',
   },
   PRODUCTION: {
     enableLog: false,
@@ -23,6 +25,7 @@ const environments: EnvironmentsConfigModel = {
     privateKey: '',
     clientEmail: '',
     databaseURL: '',
+    tokenName: '',
   },
 };
 

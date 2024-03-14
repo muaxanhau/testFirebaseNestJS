@@ -16,9 +16,4 @@ export type AddUserResponseModel = UserIdModel;
 
 //=====================================================================================================================
 // getUserSelf
-export class GetUserSelfHeadersModel {
-  @IsNotEmpty()
-  @IsString()
-  ['firebase-token']: string;
-}
 export type GetUserSelfResponseModel = UserIdModel;
