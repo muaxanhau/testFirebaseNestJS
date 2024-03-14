@@ -1,5 +1,4 @@
 import { Body, Controller, Get, Headers, Post } from '@nestjs/common';
-import { UserIdModel } from 'src/models';
 import { UsersService } from 'src/services';
 import {
   AddUserBodyModel,
@@ -7,7 +6,6 @@ import {
   GetUserSelfHeadersModel,
   GetUserSelfResponseModel,
 } from './models';
-import { utils } from 'src/utils';
 
 @Controller('/users')
 export class UsersController {
