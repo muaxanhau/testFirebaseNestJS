@@ -33,8 +33,7 @@ export class CartsController {
 
     const response = carts.map((rawCart) => {
       const { userId, itemId, ...cart } = rawCart;
-      const rawItem = items.filter((item) => item.id === itemId)[0];
-      const {} = rawItem;
+      const rawItem = items.filter((item) => item.id === itemId)?.[0];
       return {
         ...cart,
         item: rawItem,
