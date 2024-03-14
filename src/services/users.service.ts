@@ -10,6 +10,9 @@ export class UsersService {
     if (rawUser.exists) return;
 
     await refUser.set(data);
+
+    const user: UserIdModel = { id, ...data };
+    return user;
   }
 
   async getUser(id: string) {

@@ -16,8 +16,8 @@ export class UsersController {
   @Post()
   async addUser(@Body() body: AddUserBodyModel): Promise<AddUserResponseModel> {
     const { id, ...user } = body;
-    await this.usersService.addUser(id, user);
-    return null;
+    const newUser = await this.usersService.addUser(id, user);
+    return newUser;
   }
 
   @Get('/self')

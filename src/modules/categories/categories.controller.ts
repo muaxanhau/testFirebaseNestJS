@@ -44,7 +44,7 @@ export class CategoriesController {
       categories.map((category) => ({
         ...category,
         items: items
-          .filter((item) => item.categoryId.id === category.id)
+          .filter((item) => item.categoryId === category.id)
           .map((item) => {
             const { categoryId, ...onlyItem } = item;
             return onlyItem;

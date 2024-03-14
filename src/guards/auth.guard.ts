@@ -21,7 +21,7 @@ export class AuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const token = request.headers['firebase-token'];
     if (!token) {
-      throw new UnauthorizedException('Unauthorized. Please login');
+      throw new UnauthorizedException('Unauthorized. Please login!');
     }
 
     try {
@@ -29,7 +29,7 @@ export class AuthGuard implements CanActivate {
 
       return true;
     } catch (e) {
-      throw new UnauthorizedException('Unauthorized. Please login');
+      throw new UnauthorizedException('Unauthorized. Please login!');
     }
   }
 }

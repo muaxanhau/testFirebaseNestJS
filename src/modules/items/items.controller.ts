@@ -1,6 +1,11 @@
-import { Controller, Get } from '@nestjs/common';
+import { Body, Controller, Get, NotFoundException, Post } from '@nestjs/common';
 import { ItemsService } from 'src/services';
-import { GetAllItemsResponseModel } from './models';
+import {
+  AddItemBody,
+  AddItemResponseModel,
+  GetAllItemsResponseModel,
+} from './models';
+import { categoriesCollection } from 'src/services/firebase';
 
 @Controller('/items')
 export class ItemsController {
@@ -10,5 +15,22 @@ export class ItemsController {
   async getAllItems(): Promise<GetAllItemsResponseModel> {
     const data = await this.itemsService.getAllItems();
     return data;
+  }
+
+  @Post()
+  async addItem(@Body() body: AddItemBody): Promise<AddItemResponseModel> {
+    const { categoryId, ...item } = body;
+
+    const rawCategory = await categoriesCollection.doc(categoryId).get();
+    if (!rawCategory.exists) {
+      throw new NotFoundException('Category not found.');
+    }
+
+    const newItem = await this.itemsService.addItem({
+      ...item,
+      categoryId: rawCategory.id,
+    });
+
+    return newItem;
   }
 }

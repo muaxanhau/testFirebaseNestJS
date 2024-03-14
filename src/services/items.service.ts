@@ -13,4 +13,13 @@ export class ItemsService {
 
     return items;
   }
+  async addItem(data: ItemModel) {
+    const response = await itemsCollection.add(data);
+    const rawItem = await response.get();
+    const item: ItemIdModel = {
+      id: rawItem.id,
+      ...(rawItem.data() as ItemModel),
+    };
+    return item;
+  }
 }

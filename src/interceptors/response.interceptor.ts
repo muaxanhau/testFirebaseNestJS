@@ -12,9 +12,10 @@ export class ResponseInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler) {
     return next.handle().pipe(
       map((data) => {
-        const request = context.switchToHttp().getRequest<Request>();
+        const ctx = context.switchToHttp();
+        const request = ctx.getRequest<Request>();
 
-        const response: SuccessResponseBaseModel = {
+        const result: SuccessResponseBaseModel = {
           statusCode: 200,
           method: request.method,
           path: request.url,
@@ -22,7 +23,7 @@ export class ResponseInterceptor implements NestInterceptor {
           message: ['Success'],
           data,
         };
-        return response;
+        return result;
       }),
     );
   }
