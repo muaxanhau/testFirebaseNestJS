@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -15,6 +16,7 @@ import {
 import { HeadersBaseModel } from 'src/models';
 import { tokenName } from 'src/config';
 import { NoRoleGuard } from 'src/decorators';
+import { exceptionUtils } from 'src/utils';
 
 @Controller('/carts')
 export class CartsController {
@@ -60,7 +62,9 @@ export class CartsController {
     const { itemId, quantity } = body;
 
     const item = await this.itemsService.getItem(itemId);
-    if (!item) throw new NotFoundException('Item not found.');
+    if (!item) {
+      exceptionUtils.notFound();
+    }
 
     const userId = (await this.usersService.getUserIdFromToken(token))!;
 

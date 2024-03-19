@@ -7,6 +7,7 @@ import {
 } from './models';
 import { categoriesCollection } from 'src/services/firebase';
 import { NoRoleGuard } from 'src/decorators';
+import { exceptionUtils } from 'src/utils';
 
 @Controller('/items')
 export class ItemsController {
@@ -25,7 +26,7 @@ export class ItemsController {
 
     const rawCategory = await categoriesCollection.doc(categoryId).get();
     if (!rawCategory.exists) {
-      throw new NotFoundException('Category not found.');
+      exceptionUtils.notFound();
     }
 
     const newItem = await this.itemsService.addItem({

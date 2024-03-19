@@ -1,6 +1,7 @@
 import {
   ForbiddenException,
   InternalServerErrorException,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 
@@ -15,9 +16,13 @@ const server = () => {
     'Something went wrong. Please get back later.',
   );
 };
+const notFound = () => {
+  throw new NotFoundException('Not found.');
+};
 
 export const exceptionUtils = {
   unauthorized,
   role,
   server,
+  notFound,
 };
