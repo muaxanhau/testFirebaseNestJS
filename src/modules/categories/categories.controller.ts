@@ -21,6 +21,7 @@ import {
   UpdateCategoryParamModel,
   UpdateCategoryBodyModel,
 } from './models';
+import { NoRoleGuard } from 'src/decorators';
 
 @Controller('/categories')
 export class CategoriesController {
@@ -29,12 +30,14 @@ export class CategoriesController {
     private readonly itemsService: ItemsService,
   ) {}
 
+  @NoRoleGuard()
   @Get()
   async getAllCategories(): Promise<GetAllCategoriesResponseModel> {
     const data = await this.categoriesService.getAllCategories();
     return data;
   }
 
+  @NoRoleGuard()
   @Get('/items')
   async getAllCategoriesWithItems(): Promise<GetAllCategoriesWithItemsResponseModel> {
     const categories = await this.categoriesService.getAllCategories();
@@ -54,6 +57,7 @@ export class CategoriesController {
     return categoriesWithItems;
   }
 
+  @NoRoleGuard()
   @Get(':id')
   async getCategory(
     @Param() param: GetCategoryByIdParamModel,

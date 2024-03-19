@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { cartsCollection } from './firebase';
 import { CartIdModel, CartModel } from 'src/models/collections/cart.model';
 import { firestore } from 'firebase-admin';
+import { Timestamp } from 'firebase-admin/firestore';
 
 @Injectable()
 export class CartsService {
@@ -37,13 +38,13 @@ export class CartsService {
       userId,
       itemId,
       quantity,
-      createdAt: new Date(),
+      createdAt: Timestamp.fromDate(new Date()),
     };
     const response = await cartsCollection.add(data);
     const rawCart = await response.get();
     const cart: CartIdModel = {
       id: rawCart.id,
-      ...(rawCart.data() as CartIdModel),
+      ...(rawCart.data() as CartModel),
     };
     return cart;
   }

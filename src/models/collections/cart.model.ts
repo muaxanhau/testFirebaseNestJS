@@ -1,10 +1,11 @@
 import { FirestoreIdBaseModel } from '../base.model';
+import { Timestamp } from 'firebase-admin/firestore';
 
 export type CartModel = {
   userId: string;
   itemId: string;
-  createdAt: Date;
-  paidAt?: Date;
+  createdAt: Timestamp;
+  paidAt?: Timestamp;
   quantity: number;
 };
 export type CartIdModel = FirestoreIdBaseModel<CartModel>;

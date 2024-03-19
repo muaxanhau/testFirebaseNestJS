@@ -8,6 +8,5 @@ export type EnvironmentsConfigModel = Record<
     privateKey: string;
     clientEmail: string;
     databaseURL: string;
-    tokenName: string;
   }
 >;

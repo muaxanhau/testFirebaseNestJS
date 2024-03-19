@@ -6,11 +6,13 @@ import {
   GetAllItemsResponseModel,
 } from './models';
 import { categoriesCollection } from 'src/services/firebase';
+import { NoRoleGuard } from 'src/decorators';
 
 @Controller('/items')
 export class ItemsController {
   constructor(private readonly itemsService: ItemsService) {}
 
+  @NoRoleGuard()
   @Get()
   async getAllItems(): Promise<GetAllItemsResponseModel> {
     const data = await this.itemsService.getAllItems();

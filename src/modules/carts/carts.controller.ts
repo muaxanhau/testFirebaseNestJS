@@ -13,6 +13,8 @@ import {
   GetCartsByUserIdResponseModel,
 } from './models';
 import { HeadersBaseModel } from 'src/models';
+import { tokenName } from 'src/config';
+import { NoRoleGuard } from 'src/decorators';
 
 @Controller('/carts')
 export class CartsController {
@@ -22,38 +24,45 @@ export class CartsController {
     private readonly usersService: UsersService,
   ) {}
 
+  @NoRoleGuard()
   @Get()
   async getCartsByUserId(
     @Headers() headers: HeadersBaseModel,
   ): Promise<GetCartsByUserIdResponseModel> {
-    const token = headers['firebase-token'];
-    const userId = await this.usersService.getUserIdFromToken(token);
+    const token = headers[tokenName];
+    const userId = (await this.usersService.getUserIdFromToken(token))!;
     const carts = await this.cartsService.getCartsByUserId(userId);
     const items = await this.itemsService.getAllItems();
 
     const response = carts.map((rawCart) => {
       const { userId, itemId, ...cart } = rawCart;
       const rawItem = items.filter((item) => item.id === itemId)?.[0];
+      const createdAt = cart.createdAt.toDate();
+      const paidAt = cart.paidAt?.toDate();
+
       return {
         ...cart,
         item: rawItem,
+        createdAt,
+        paidAt,
       };
     });
     return response;
   }
 
+  @NoRoleGuard()
   @Post()
   async addCart(
     @Headers() headers: HeadersBaseModel,
     @Body() body: AddCartBodyModel,
   ): Promise<AddCartResponseModel> {
-    const token = headers['firebase-token'];
+    const token = headers[tokenName];
     const { itemId, quantity } = body;
 
     const item = await this.itemsService.getItem(itemId);
     if (!item) throw new NotFoundException('Item not found.');
 
-    const userId = await this.usersService.getUserIdFromToken(token);
+    const userId = (await this.usersService.getUserIdFromToken(token))!;
 
     const newCart = await this.cartsService.addCart(userId, itemId, quantity);
     return newCart;

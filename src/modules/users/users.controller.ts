@@ -6,26 +6,29 @@ import {
   GetUserSelfResponseModel,
 } from './models';
 import { HeadersBaseModel } from 'src/models';
+import { NoRoleGuard } from 'src/decorators';
+import { tokenName } from 'src/config';
 
 @Controller('/users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @NoRoleGuard()
   @Post()
   async addUser(@Body() body: AddUserBodyModel): Promise<AddUserResponseModel> {
-    const { id, ...user } = body;
-    const newUser = await this.usersService.addUser(id, user);
-    return newUser;
+    const { id, ...newUser } = body;
+    const user = await this.usersService.addUser(id, newUser);
+    return user;
   }
 
+  @NoRoleGuard()
   @Get('/self')
   async getUserSelf(
     @Headers() headers: HeadersBaseModel,
   ): Promise<GetUserSelfResponseModel> {
-    const token = headers['firebase-token'];
+    const token = headers[tokenName];
 
-    const id = await this.usersService.getUserIdFromToken(token);
-    const user = await this.usersService.getUser(id);
+    const user = (await this.usersService.getUserFromToken(token))!;
     return user;
   }
 }

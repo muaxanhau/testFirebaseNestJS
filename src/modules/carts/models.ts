@@ -5,11 +5,13 @@ import { Prettify } from 'src/utils';
 
 //=====================================================================================================================
 // getCartsByUserId
-export type GetCartsByUserIdResponseModel = Prettify<
-  Omit<CartIdModel, 'userId' | 'itemId'> & {
-    item: ItemIdModel;
-  }
->[];
+export type GetCartsByUserIdResponseModel = {
+  id: string;
+  createdAt: Date;
+  paidAt?: Date;
+  quantity: number;
+  item: ItemIdModel;
+}[];
 
 //=====================================================================================================================
 // addCart

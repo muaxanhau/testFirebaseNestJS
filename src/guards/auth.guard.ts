@@ -1,11 +1,9 @@
-import {
-  Injectable,
-  CanActivate,
-  ExecutionContext,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import { tokenName } from 'src/config';
+import { NO_AUTH } from 'src/decorators';
 import { fireauth } from 'src/services/firebase';
+import { exceptionUtils } from 'src/utils';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -13,15 +11,15 @@ export class AuthGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext) {
     const noAuthGuard = this.reflector.get<boolean>(
-      'noAuthGuard',
+      NO_AUTH,
       context.getHandler(),
     );
     if (noAuthGuard) return true;
 
     const request = context.switchToHttp().getRequest();
-    const token = request.headers['firebase-token'];
+    const token = request.headers[tokenName];
     if (!token) {
-      throw new UnauthorizedException('Unauthorized. Please login!');
+      exceptionUtils.unauthorized();
     }
 
     try {
@@ -29,7 +27,7 @@ export class AuthGuard implements CanActivate {
 
       return true;
     } catch (e) {
-      throw new UnauthorizedException('Unauthorized. Please login!');
+      return exceptionUtils.unauthorized();
     }
   }
 }
