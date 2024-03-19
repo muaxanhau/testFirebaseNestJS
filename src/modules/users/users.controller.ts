@@ -7,7 +7,7 @@ import {
 } from './models';
 import { HeadersBaseModel } from 'src/models';
 import { NoRoleGuard } from 'src/decorators';
-import { tokenName } from 'src/config';
+import { config } from 'src/config';
 
 @Controller('/users')
 export class UsersController {
@@ -26,7 +26,7 @@ export class UsersController {
   async getUserSelf(
     @Headers() headers: HeadersBaseModel,
   ): Promise<GetUserSelfResponseModel> {
-    const token = headers[tokenName];
+    const token = headers[config.tokenName];
 
     const user = (await this.usersService.getUserFromToken(token))!;
     return user;

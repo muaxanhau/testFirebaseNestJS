@@ -1,6 +1,6 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { tokenName } from 'src/config';
+import { config } from 'src/config';
 import { NO_AUTH } from 'src/decorators';
 import { fireauth } from 'src/services/firebase';
 import { exceptionUtils } from 'src/utils';
@@ -17,7 +17,7 @@ export class AuthGuard implements CanActivate {
     if (noAuthGuard) return true;
 
     const request = context.switchToHttp().getRequest();
-    const token = request.headers[tokenName];
+    const token = request.headers[config.tokenName];
     if (!token) {
       exceptionUtils.unauthorized();
     }

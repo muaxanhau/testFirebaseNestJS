@@ -1,5 +1,6 @@
 import { EnvironmentsConfigModel } from './models';
 
+export const tokenName = 'firebase-token';
 const environments: EnvironmentsConfigModel = {
   DEVELOPMENT: {
     enableLog: true,
@@ -9,6 +10,7 @@ const environments: EnvironmentsConfigModel = {
     clientEmail:
       'firebase-adminsdk-3p205@testfirebase-fe46e.iam.gserviceaccount.com',
     databaseURL: 'https://testfirebase-fe46e.firebaseio.com',
+    tokenName,
   },
   STAGING: {
     enableLog: true,
@@ -16,6 +18,7 @@ const environments: EnvironmentsConfigModel = {
     privateKey: '',
     clientEmail: '',
     databaseURL: '',
+    tokenName,
   },
   PRODUCTION: {
     enableLog: false,
@@ -23,8 +26,9 @@ const environments: EnvironmentsConfigModel = {
     privateKey: '',
     clientEmail: '',
     databaseURL: '',
+    tokenName,
   },
-};
+} as const;
 
 /**
  * *******************************
@@ -32,5 +36,3 @@ const environments: EnvironmentsConfigModel = {
  * *******************************
  */
 export const config = environments.DEVELOPMENT;
-
-export const tokenName = 'firebase-token';

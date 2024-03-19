@@ -1,6 +1,6 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { tokenName } from 'src/config';
+import { config } from 'src/config';
 import { NO_ADMIN_ROLE, NO_AUTH } from 'src/decorators';
 import { RoleEnum } from 'src/models';
 import { UsersService } from 'src/services';
@@ -25,7 +25,7 @@ export class AdminRoleGuard implements CanActivate {
     if (noRoleGuard || noAuthGuard) return true;
 
     const request = context.switchToHttp().getRequest();
-    const token = request.headers[tokenName];
+    const token = request.headers[config.tokenName];
 
     const user = (await this.userService.getUserFromToken(token))!;
     const isUser = user.role === RoleEnum.USER;

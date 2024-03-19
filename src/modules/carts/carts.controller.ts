@@ -1,12 +1,4 @@
-import {
-  BadRequestException,
-  Body,
-  Controller,
-  Get,
-  Headers,
-  NotFoundException,
-  Post,
-} from '@nestjs/common';
+import { Body, Controller, Get, Headers, Post } from '@nestjs/common';
 import { CartsService, ItemsService, UsersService } from 'src/services';
 import {
   AddCartBodyModel,
@@ -14,7 +6,7 @@ import {
   GetCartsByUserIdResponseModel,
 } from './models';
 import { HeadersBaseModel } from 'src/models';
-import { tokenName } from 'src/config';
+import { config } from 'src/config';
 import { NoRoleGuard } from 'src/decorators';
 import { exceptionUtils } from 'src/utils';
 
@@ -31,7 +23,7 @@ export class CartsController {
   async getCartsByUserId(
     @Headers() headers: HeadersBaseModel,
   ): Promise<GetCartsByUserIdResponseModel> {
-    const token = headers[tokenName];
+    const token = headers[config.tokenName];
     const userId = (await this.usersService.getUserIdFromToken(token))!;
     const carts = await this.cartsService.getCartsByUserId(userId);
     const items = await this.itemsService.getAllItems();
@@ -58,7 +50,7 @@ export class CartsController {
     @Headers() headers: HeadersBaseModel,
     @Body() body: AddCartBodyModel,
   ): Promise<AddCartResponseModel> {
-    const token = headers[tokenName];
+    const token = headers[config.tokenName];
     const { itemId, quantity } = body;
 
     const item = await this.itemsService.getItem(itemId);
