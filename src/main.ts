@@ -6,7 +6,7 @@ import { AdminRoleGuard, AuthGuard } from './guards';
 import { ResponseInterceptor } from './interceptors';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { cors: true });
   const reflector = app.get(Reflector);
   const adminRoleGuard = app.get(AdminRoleGuard);
 
