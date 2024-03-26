@@ -20,6 +20,8 @@ import {
   DeleteCategoryParamModel,
   UpdateCategoryParamModel,
   UpdateCategoryBodyModel,
+  GetCategoryWithAllItemsResponseModel,
+  GetCategoryWithAllItemsParamModel,
 } from './models';
 import { NoRoleGuard } from 'src/decorators';
 
@@ -35,6 +37,23 @@ export class CategoriesController {
   async getAllCategories(): Promise<GetAllCategoriesResponseModel> {
     const data = await this.categoriesService.getAllCategories();
     return data;
+  }
+
+  @NoRoleGuard()
+  @Get(':id/items')
+  async getCategoryWithAllItems(
+    @Param() param: GetCategoryWithAllItemsParamModel,
+  ): Promise<GetCategoryWithAllItemsResponseModel> {
+    const { id } = param;
+    const category = await this.categoriesService.getCategory(id);
+    const items = await this.itemsService.getItemsByCategoryId(id);
+
+    const categoryWithItems: GetCategoryWithAllItemsResponseModel = {
+      ...category,
+      items,
+    };
+
+    return categoryWithItems;
   }
 
   @NoRoleGuard()
@@ -81,6 +100,7 @@ export class CategoriesController {
   ): Promise<DeleteCategoryResponseModel> {
     const { id } = param;
     await this.categoriesService.deleteCategory(id);
+    await this.itemsService.deleteAllItemsByCategoryId(id);
     return null;
   }
 

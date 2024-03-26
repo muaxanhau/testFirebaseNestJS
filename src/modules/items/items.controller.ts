@@ -1,8 +1,18 @@
-import { Body, Controller, Get, NotFoundException, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  NotFoundException,
+  Param,
+  Post,
+} from '@nestjs/common';
 import { ItemsService } from 'src/services';
 import {
   AddItemBody,
   AddItemResponseModel,
+  DeleteItemParamModel,
+  DeleteItemResponseModel,
   GetAllItemsResponseModel,
 } from './models';
 import { categoriesCollection } from 'src/services/firebase';
@@ -35,5 +45,15 @@ export class ItemsController {
     });
 
     return newItem;
+  }
+
+  @Delete(':id')
+  async deleteItem(
+    @Param() param: DeleteItemParamModel,
+  ): Promise<DeleteItemResponseModel> {
+    const { id } = param;
+    await this.itemsService.deleteItem(id);
+
+    return null;
   }
 }

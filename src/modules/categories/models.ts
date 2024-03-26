@@ -7,12 +7,22 @@ import { Prettify } from 'src/utils';
 export type GetAllCategoriesResponseModel = CategoryIdModel[];
 
 //=====================================================================================================================
-// getAllCategoriesWithItems
-export type GetAllCategoriesWithItemsResponseModel = Prettify<
+// getCategoryWithAllItems
+export class GetCategoryWithAllItemsParamModel {
+  @IsNotEmpty()
+  @IsString()
+  id: string;
+}
+export type GetCategoryWithAllItemsResponseModel = Prettify<
   CategoryIdModel & {
     items: Omit<ItemIdModel, 'categoryId'>[];
   }
->[];
+>;
+
+//=====================================================================================================================
+// getAllCategoriesWithItems
+export type GetAllCategoriesWithItemsResponseModel =
+  GetCategoryWithAllItemsResponseModel[];
 
 //=====================================================================================================================
 // getCategory

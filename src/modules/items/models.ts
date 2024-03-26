@@ -22,3 +22,12 @@ export class AddItemBody {
   categoryId: string;
 }
 export type AddItemResponseModel = ItemIdModel;
+
+//=====================================================================================================================
+// deleteItem
+export class DeleteItemParamModel {
+  @IsNotEmpty()
+  @IsString()
+  id: string;
+}
+export type DeleteItemResponseModel = null;

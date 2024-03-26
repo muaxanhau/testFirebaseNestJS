@@ -25,6 +25,15 @@ export class ItemsService {
     return item;
   }
 
+  async getItemsByCategoryId(id: string) {
+    const rawItem = await itemsCollection.where('categoryId', '==', id).get();
+    const items: ItemIdModel[] = rawItem.docs.map((item) => ({
+      id: item.id,
+      ...(item.data() as ItemModel),
+    }));
+    return items;
+  }
+
   async addItem(data: ItemModel) {
     const response = await itemsCollection.add(data);
     const rawItem = await response.get();
@@ -33,5 +42,15 @@ export class ItemsService {
       ...(rawItem.data() as ItemModel),
     };
     return item;
+  }
+
+  async deleteItem(id: string) {
+    await itemsCollection.doc(id).delete();
+  }
+
+  async deleteAllItemsByCategoryId(id: string) {
+    const rawItems = await itemsCollection.where('categoryId', '==', id).get();
+
+    await Promise.all(rawItems.docs.map((doc) => doc.ref.delete()));
   }
 }
