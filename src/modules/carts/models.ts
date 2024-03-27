@@ -1,17 +1,22 @@
 import { IsInt, IsNotEmpty, IsString, Min } from 'class-validator';
-import { ItemIdModel } from 'src/models';
+import { ItemIdModel, UserIdModel } from 'src/models';
 import { CartIdModel } from 'src/models/collections/cart.model';
-import { Prettify } from 'src/utils';
 
 //=====================================================================================================================
 // getCartsByUserId
-export type GetCartsByUserIdResponseModel = {
+export type GetCartsByUserIdResponseModel<T = {}> = ({
   id: string;
   createdAt: Date;
   paidAt?: Date;
   quantity: number;
   item: ItemIdModel;
-}[];
+} & T)[];
+
+//=====================================================================================================================
+// getCartsByUserId
+export type GetAllCartsResponseModel = GetCartsByUserIdResponseModel<{
+  user: UserIdModel;
+}>;
 
 //=====================================================================================================================
 // addCart

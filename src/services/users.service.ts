@@ -49,4 +49,14 @@ export class UsersService {
     const user = await this.getUser(id);
     return user;
   }
+
+  async getAllUsers() {
+    const rawUsers = await usersCollection.get();
+    const users: UserIdModel[] = rawUsers.docs.map((rawUser) => ({
+      id: rawUser.id,
+      ...(rawUser.data() as UserModel),
+    }));
+
+    return users;
+  }
 }

@@ -6,6 +6,16 @@ import { Timestamp } from 'firebase-admin/firestore';
 
 @Injectable()
 export class CartsService {
+  async getAllCarts() {
+    const rawCarts = await cartsCollection.get();
+    const carts: CartIdModel[] = rawCarts.docs.map((cart) => ({
+      id: cart.id,
+      ...(cart.data() as CartModel),
+    }));
+
+    return carts;
+  }
+
   async getCartsByUserId(userId: string) {
     const rawCarts = await cartsCollection.where('userId', '==', userId).get();
     const carts: CartIdModel[] = rawCarts.docs.map((cart) => ({
@@ -15,6 +25,7 @@ export class CartsService {
 
     return carts;
   }
+
   async addCart(userId: string, itemId: string, quantity: number) {
     // const existed = !(
     //   await cartsCollection

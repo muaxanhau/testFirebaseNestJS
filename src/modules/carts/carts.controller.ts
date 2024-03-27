@@ -3,6 +3,7 @@ import { CartsService, ItemsService, UsersService } from 'src/services';
 import {
   AddCartBodyModel,
   AddCartResponseModel,
+  GetAllCartsResponseModel,
   GetCartsByUserIdResponseModel,
 } from './models';
 import { HeadersBaseModel } from 'src/models';
@@ -17,6 +18,25 @@ export class CartsController {
     private readonly itemsService: ItemsService,
     private readonly usersService: UsersService,
   ) {}
+
+  @Get('/all')
+  async getAllCarts(): Promise<GetAllCartsResponseModel> {
+    const carts = await this.cartsService.getAllCarts();
+    const items = await this.itemsService.getAllItems();
+    const users = await this.usersService.getAllUsers();
+
+    const response: GetAllCartsResponseModel = carts.map((rawCart) => {
+      const { userId, itemId, ...cart } = rawCart;
+      const item = items.filter((item) => item.id === itemId)?.[0];
+      const user = users.filter((user) => user.id === userId)?.[0];
+      const createdAt = cart.createdAt.toDate();
+      const paidAt = cart.paidAt?.toDate();
+
+      return { ...cart, item, createdAt, paidAt, user };
+    });
+
+    return response;
+  }
 
   @NoRoleGuard()
   @Get()
