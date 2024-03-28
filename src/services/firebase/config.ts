@@ -10,3 +10,27 @@ admin.initializeApp({
 
 export const firestore = admin.firestore();
 export const fireauth = admin.auth();
+// const a = () => {
+//   const message = {
+//     notification: {
+//       title,
+//       body
+//     },
+//     data: {
+//       alarm: ''
+//     },
+//     apns: {
+//       payload: {
+//         aps: {
+//           alert: 'You got your emails.',
+//           title,
+//           body,
+//           badge: 999
+//         }
+//       }
+//     },
+//     token: tokenDevice
+//   }
+
+//   admin.messaging().send({})
+// }
