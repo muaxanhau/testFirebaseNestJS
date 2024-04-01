@@ -10,6 +10,7 @@ export type EnvironmentsConfigModel = Readonly<
       clientEmail: string;
       databaseURL: string;
       tokenName: string;
+      limitPage: number;
     }
   >
 >;

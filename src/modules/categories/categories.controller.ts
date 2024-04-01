@@ -46,7 +46,7 @@ export class CategoriesController {
   ): Promise<GetCategoryWithAllItemsResponseModel> {
     const { id } = param;
     const category = await this.categoriesService.getCategory(id);
-    const items = await this.itemsService.getItemsByCategoryId(id);
+    const { items } = await this.itemsService.getItemsByCategoryId(id);
 
     const categoryWithItems: GetCategoryWithAllItemsResponseModel = {
       ...category,

@@ -5,7 +5,9 @@ import {
   Get,
   NotFoundException,
   Param,
+  ParseIntPipe,
   Post,
+  Query,
 } from '@nestjs/common';
 import { ItemsService } from 'src/services';
 import {
@@ -13,6 +15,8 @@ import {
   AddItemResponseModel,
   DeleteItemParamModel,
   DeleteItemResponseModel,
+  GetAllItemsByCategoryIdQueryModel,
+  GetAllItemsByCategoryIdResponseModel,
   GetAllItemsResponseModel,
 } from './models';
 import { categoriesCollection } from 'src/services/firebase';
@@ -22,6 +26,17 @@ import { exceptionUtils } from 'src/utils';
 @Controller('/items')
 export class ItemsController {
   constructor(private readonly itemsService: ItemsService) {}
+
+  @NoRoleGuard()
+  @Get()
+  async getAllItemsByCategoryId(
+    @Query() query: GetAllItemsByCategoryIdQueryModel,
+    @Query('page', ParseIntPipe) page?: number,
+  ): Promise<GetAllItemsByCategoryIdResponseModel> {
+    const { categoryId } = query;
+    const data = await this.itemsService.getItemsByCategoryId(categoryId, page);
+    return data;
+  }
 
   @NoRoleGuard()
   @Get()

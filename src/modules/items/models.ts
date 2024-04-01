@@ -1,10 +1,34 @@
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
-import { ItemIdModel, ItemModel } from 'src/models';
+import { Optional } from '@nestjs/common';
+import {
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsAlphanumeric,
+  ValidateIf,
+  IsInt,
+} from 'class-validator';
+import {
+  ItemIdModel,
+  ItemModel,
+  PaginationResponseBaseModel,
+} from 'src/models';
 import { Prettify } from 'src/utils';
 
 //=====================================================================================================================
 // getAllItems
 export type GetAllItemsResponseModel = ItemIdModel[];
+
+//=====================================================================================================================
+// getAllItemsByCategoryId
+export class GetAllItemsByCategoryIdQueryModel {
+  @IsNotEmpty()
+  @IsString()
+  categoryId: string;
+}
+export type GetAllItemsByCategoryIdResponseModel = PaginationResponseBaseModel<{
+  items: ItemIdModel[];
+}>;
 
 //=====================================================================================================================
 // addItem

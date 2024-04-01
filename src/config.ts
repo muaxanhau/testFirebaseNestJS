@@ -11,6 +11,7 @@ const environments: EnvironmentsConfigModel = {
       'firebase-adminsdk-3p205@testfirebase-fe46e.iam.gserviceaccount.com',
     databaseURL: 'https://testfirebase-fe46e.firebaseio.com',
     tokenName,
+    limitPage: 2,
   },
   STAGING: {
     enableLog: true,
@@ -19,6 +20,7 @@ const environments: EnvironmentsConfigModel = {
     clientEmail: '',
     databaseURL: '',
     tokenName,
+    limitPage: 10,
   },
   PRODUCTION: {
     enableLog: false,
@@ -27,6 +29,7 @@ const environments: EnvironmentsConfigModel = {
     clientEmail: '',
     databaseURL: '',
     tokenName,
+    limitPage: 10,
   },
 } as const;
 

@@ -27,6 +27,12 @@ export type ErrorResponseBaseModel = ResponseBaseModel<null>;
  */
 export type SuccessResponseBaseModel<T = null> = ResponseBaseModel<T>;
 
+export type PaginationResponseBaseModel<T> = {
+  totalPage: number;
+  nextPage: number;
+  prevPage: number;
+} & T;
+
 export class HeadersBaseModel {
   @IsNotEmpty()
   @IsString()
