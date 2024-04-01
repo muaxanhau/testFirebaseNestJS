@@ -26,15 +26,6 @@ export class ItemsService {
     return item;
   }
 
-  /**
-   *
-   *
-   *
-   * [0,1,2,3,4,5,6]
-   * length: 7
-   *
-   *
-   */
   async getItemsByCategoryId(id: string, page = 0) {
     const fullItems = await itemsCollection.where('categoryId', '==', id).get();
     const lengthFullItems = fullItems.size;
