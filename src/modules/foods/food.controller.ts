@@ -23,8 +23,10 @@ export class FoodsController {
 
   @Post('/dummies')
   async addDummiesFoods() {
-    const categories = await this.categoriesService.getAllCategories();
-    const subCategories = await this.subCategoriesService.getAllSubCategories();
+    const categories = await this.categoriesService.getAllCategories({});
+    const subCategories = await this.subCategoriesService.getAllSubCategories(
+      {},
+    );
 
     dummyFoods.map((food) => {
       const { name, description, category, subCategory } = food;

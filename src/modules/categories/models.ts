@@ -4,6 +4,11 @@ import { Prettify } from 'src/utils';
 
 //=====================================================================================================================
 // getAllCategories
+export class GetAllCategoriesQueryModel {
+  @IsString()
+  @IsOptional()
+  restaurantId?: string;
+}
 export type GetAllCategoriesResponseModel = CategoryIdModel[];
 
 //=====================================================================================================================

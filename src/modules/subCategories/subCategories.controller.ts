@@ -1,10 +1,11 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { SubCategoriesService } from 'src/services';
 import { NoRoleGuard } from 'src/decorators';
 import { dummySubCategories } from 'src/utils';
 import {
   AddSubCategoryBodyModel,
   AddSubCategoryResponseModel,
+  GetAllSubCategoriesQueryModel,
   GetAllSubCategoriesResponseModel,
 } from './models';
 
@@ -32,8 +33,10 @@ export class SubCategoriesController {
 
   @NoRoleGuard()
   @Get()
-  async getAllSubCategories(): Promise<GetAllSubCategoriesResponseModel> {
-    const data = await this.subCategoriesService.getAllSubCategories();
+  async getAllSubCategories(
+    @Query() query: GetAllSubCategoriesQueryModel,
+  ): Promise<GetAllSubCategoriesResponseModel> {
+    const data = await this.subCategoriesService.getAllSubCategories(query);
     return data;
   }
 }
