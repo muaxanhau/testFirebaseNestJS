@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { cartsCollection } from './firebase';
-import { CartIdModel, CartModel } from 'src/models/collections/cart.model';
 import { firestore } from 'firebase-admin';
 import { Timestamp } from 'firebase-admin/firestore';
+import { CartIdModel, CartModel } from 'src/models';
 
 @Injectable()
 export class CartsService {

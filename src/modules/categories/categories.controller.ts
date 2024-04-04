@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { CategoriesService, ItemsService } from 'src/services';
 import {
@@ -22,8 +23,10 @@ import {
   UpdateCategoryBodyModel,
   GetCategoryWithAllItemsResponseModel,
   GetCategoryWithAllItemsParamModel,
+  GetAllCategoriesQueryModel,
 } from './models';
 import { NoRoleGuard } from 'src/decorators';
+import { dummyCategories } from 'src/utils';
 
 @Controller('/categories')
 export class CategoriesController {
@@ -32,10 +35,26 @@ export class CategoriesController {
     private readonly itemsService: ItemsService,
   ) {}
 
+  @Post('/dummies')
+  async addDummiesCategories() {
+    await Promise.all(
+      dummyCategories.map((category) =>
+        this.categoriesService.addCategory(category),
+      ),
+    );
+    return null;
+  }
+
   @NoRoleGuard()
   @Get()
-  async getAllCategories(): Promise<GetAllCategoriesResponseModel> {
-    const data = await this.categoriesService.getAllCategories();
+  async getAllCategories(
+    @Query() query: GetAllCategoriesQueryModel,
+  ): Promise<GetAllCategoriesResponseModel> {
+    const { restaurantId } = query;
+
+    const data = await this.categoriesService.getAllCategories({
+      restaurantId,
+    });
     return data;
   }
 
@@ -59,7 +78,7 @@ export class CategoriesController {
   @NoRoleGuard()
   @Get('/items')
   async getAllCategoriesWithItems(): Promise<GetAllCategoriesWithItemsResponseModel> {
-    const categories = await this.categoriesService.getAllCategories();
+    const categories = await this.categoriesService.getAllCategories({});
     const items = await this.itemsService.getAllItems();
 
     const categoriesWithItems: GetAllCategoriesWithItemsResponseModel =

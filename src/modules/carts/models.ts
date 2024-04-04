@@ -1,6 +1,5 @@
 import { IsInt, IsNotEmpty, IsString, Min } from 'class-validator';
-import { ItemIdModel, UserIdModel } from 'src/models';
-import { CartIdModel } from 'src/models/collections/cart.model';
+import { CartIdModel, ItemIdModel, UserIdModel } from 'src/models';
 
 //=====================================================================================================================
 // getCartsByUserId
