@@ -24,6 +24,7 @@ import {
   GetCategoryWithAllItemsParamModel,
 } from './models';
 import { NoRoleGuard } from 'src/decorators';
+import { dummyCategories } from 'src/utils';
 
 @Controller('/categories')
 export class CategoriesController {
@@ -31,6 +32,16 @@ export class CategoriesController {
     private readonly categoriesService: CategoriesService,
     private readonly itemsService: ItemsService,
   ) {}
+
+  @Post('/dummies')
+  async addDummiesCategories() {
+    await Promise.all(
+      dummyCategories.map((category) =>
+        this.categoriesService.addCategory(category),
+      ),
+    );
+    return null;
+  }
 
   @NoRoleGuard()
   @Get()

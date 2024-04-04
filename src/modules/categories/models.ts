@@ -40,13 +40,14 @@ export class AddCategoryBodyModel {
   @IsString()
   name: string;
 
-  @IsOptional()
   @IsString()
-  image?: string;
+  image: string;
 
-  @IsOptional()
   @IsString()
-  description?: string;
+  description: string;
+
+  @IsString()
+  origin: string;
 }
 export type AddCategoryResponseModel = CategoryIdModel;
 
@@ -66,17 +67,5 @@ export class UpdateCategoryParamModel {
   @IsString()
   id: string;
 }
-export class UpdateCategoryBodyModel {
-  @IsNotEmpty()
-  @IsString()
-  name: string;
-
-  @IsOptional()
-  @IsString()
-  image?: string;
-
-  @IsOptional()
-  @IsString()
-  description?: string;
-}
+export class UpdateCategoryBodyModel extends AddCategoryBodyModel {}
 export type UpdateCategoryResponseModel = null;
