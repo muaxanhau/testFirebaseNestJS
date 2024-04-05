@@ -3,44 +3,22 @@ import {
   restaurantAndFoodsCollection,
   restaurantsCollection,
 } from './firebase';
-import {
-  RestaurantAndFoodsIdModel,
-  RestaurantAndFoodsModel,
-  RestaurantIdModel,
-  RestaurantModel,
-} from 'src/models';
+import { RestaurantAndFoodsModel, RestaurantModel } from 'src/models';
 
 @Injectable()
 export class RestaurantsService {
   async addRestaurant(data: RestaurantModel) {
-    const response = await restaurantsCollection.add(data);
-    const rawRestaurant = await response.get();
-    const restaurant: RestaurantIdModel = {
-      id: rawRestaurant.id,
-      ...(rawRestaurant.data() as RestaurantModel),
-    };
+    const restaurant = await restaurantsCollection.add(data);
     return restaurant;
   }
 
   async addFood(data: RestaurantAndFoodsModel) {
-    const response = await restaurantAndFoodsCollection.add(data);
-    const rawRestaurantAndFoods = await response.get();
-    const restaurantAndFoods: RestaurantAndFoodsIdModel = {
-      id: rawRestaurantAndFoods.id,
-      ...(rawRestaurantAndFoods.data() as RestaurantAndFoodsModel),
-    };
+    const restaurantAndFoods = await restaurantAndFoodsCollection.add(data);
     return restaurantAndFoods;
   }
 
   async getAllRestaurants() {
-    const rawRestaurants = await restaurantsCollection.get();
-    const restaurants: RestaurantIdModel[] = rawRestaurants.docs.map(
-      (restaurant) => ({
-        id: restaurant.id,
-        ...(restaurant.data() as RestaurantModel),
-      }),
-    );
-
+    const restaurants = await restaurantsCollection.getAll();
     return restaurants;
   }
 }

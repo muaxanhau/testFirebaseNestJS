@@ -3,13 +3,12 @@ import {
   Controller,
   Delete,
   Get,
-  NotFoundException,
   Param,
   ParseIntPipe,
   Post,
   Query,
 } from '@nestjs/common';
-import { ItemsService } from 'src/services';
+import { CategoriesService, ItemsService } from 'src/services';
 import {
   AddItemBody,
   AddItemResponseModel,
@@ -19,13 +18,15 @@ import {
   GetAllItemsByCategoryIdResponseModel,
   GetAllItemsResponseModel,
 } from './models';
-import { categoriesCollection } from 'src/services/firebase';
 import { NoRoleGuard } from 'src/decorators';
 import { exceptionUtils } from 'src/utils';
 
 @Controller('/items')
 export class ItemsController {
-  constructor(private readonly itemsService: ItemsService) {}
+  constructor(
+    private readonly itemsService: ItemsService,
+    private readonly categoriesService: CategoriesService,
+  ) {}
 
   @NoRoleGuard()
   @Get()
@@ -49,16 +50,12 @@ export class ItemsController {
   async addItem(@Body() body: AddItemBody): Promise<AddItemResponseModel> {
     const { categoryId, ...item } = body;
 
-    const rawCategory = await categoriesCollection.doc(categoryId).get();
-    if (!rawCategory.exists) {
+    const existed = await this.categoriesService.exist(categoryId);
+    if (!existed) {
       exceptionUtils.notFound();
     }
 
-    const newItem = await this.itemsService.addItem({
-      ...item,
-      categoryId: rawCategory.id,
-    });
-
+    const newItem = await this.itemsService.addItem({ ...item, categoryId });
     return newItem;
   }
 
