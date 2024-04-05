@@ -37,7 +37,7 @@ type Options<T> = Partial<T> | void;
 export class Collection<T extends Object & AddPrefixToKeys<string, any>> {
   private readonly collection: CollectionType;
 
-  private async paginate(
+  private async queryPagination(
     queryCollection: QueryCollectionType,
     options: Options<Pagination>,
   ) {
@@ -59,7 +59,7 @@ export class Collection<T extends Object & AddPrefixToKeys<string, any>> {
     return query;
   }
 
-  private orderBy<T>(
+  private queryOrderBy<T>(
     queryCollection: QueryCollectionType,
     options: Options<OrderBy<T>>,
   ) {
@@ -112,8 +112,10 @@ export class Collection<T extends Object & AddPrefixToKeys<string, any>> {
     return record;
   }
 
-  async getAll(options: Options<Pagination>) {
-    const query = await this.paginate(this.collection, options);
+  async getAll(options: Options<Pagination & OrderBy<T>>) {
+    let query: QueryCollectionType = this.collection;
+    query = this.queryOrderBy(query, options);
+    query = await this.queryPagination(this.collection, options);
 
     const rawRecords = await query.get();
     const records: FirestoreIdBaseModel<T>[] = rawRecords.docs.map(
@@ -130,10 +132,9 @@ export class Collection<T extends Object & AddPrefixToKeys<string, any>> {
     options: Options<Pagination & OrderBy<T>>,
   ) {
     let query: QueryCollectionType = this.collection;
-
     query = this.queryConditions(query, conditions);
-    query = this.orderBy(query, options);
-    query = await this.paginate(query, options);
+    query = this.queryOrderBy(query, options);
+    query = await this.queryPagination(query, options);
 
     const rawRecords = await query.get();
     const records: FirestoreIdBaseModel<T>[] = rawRecords.docs.map(
