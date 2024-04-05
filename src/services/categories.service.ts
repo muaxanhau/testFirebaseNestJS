@@ -1,21 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { categoriesCollection } from 'src/services/firebase';
-import { CategoryModel, CategoryIdModel } from 'src/models';
+import { CategoryModel } from 'src/models';
 import { FoodsService } from './foods.service';
 
 @Injectable()
 export class CategoriesService {
   constructor(private readonly foodsService: FoodsService) {}
 
-  async getAllCategories({ restaurantId }: GetAllCategoriesProps) {
-    const rawCategories = await categoriesCollection.get();
-    const categories: CategoryIdModel[] = rawCategories.docs.map(
-      (category) => ({
-        id: category.id,
-        ...(category.data() as CategoryModel),
-      }),
-    );
+  async exist(id: string) {
+    const existed = categoriesCollection.exist(id);
+    return existed;
+  }
 
+  async getAllCategories({ restaurantId }: GetAllCategoriesProps) {
+    const categories = await categoriesCollection.getAll();
     if (!restaurantId) {
       return categories;
     }
@@ -29,32 +27,21 @@ export class CategoriesService {
   }
 
   async getCategory(id: string) {
-    const rawCategory = await categoriesCollection.doc(id).get();
-    const category: CategoryIdModel = {
-      id: rawCategory.id,
-      ...(rawCategory.data() as CategoryModel),
-    };
-
+    const category = await categoriesCollection.get(id);
     return category;
   }
 
-  async addCategory(category: CategoryModel) {
-    const response = await categoriesCollection.add(category);
-    const rawCategory = await response.get();
-    const newCategory: CategoryIdModel = {
-      id: rawCategory.id,
-      ...(rawCategory.data() as CategoryModel),
-    };
-
-    return newCategory;
+  async addCategory(data: CategoryModel) {
+    const category = await categoriesCollection.add(data);
+    return category;
   }
 
   async deleteCategory(id: string) {
-    await categoriesCollection.doc(id).delete();
+    await categoriesCollection.delete(id);
   }
 
   async updateCategory(id: string, data: CategoryModel) {
-    await categoriesCollection.doc(id).update(data);
+    await categoriesCollection.edit(id, data);
   }
 }
 

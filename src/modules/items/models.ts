@@ -1,19 +1,5 @@
-import { Optional } from '@nestjs/common';
-import {
-  IsNotEmpty,
-  IsNumber,
-  IsOptional,
-  IsString,
-  IsAlphanumeric,
-  ValidateIf,
-  IsInt,
-} from 'class-validator';
-import {
-  ItemIdModel,
-  ItemModel,
-  PaginationResponseBaseModel,
-} from 'src/models';
-import { Prettify } from 'src/utils';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { ItemIdModel, PaginationResponseBaseModel } from 'src/models';
 
 //=====================================================================================================================
 // getAllItems
