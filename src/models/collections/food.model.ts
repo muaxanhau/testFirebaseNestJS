@@ -1,4 +1,4 @@
-import { FirestoreIdBaseModel } from '../base.model';
+import { FirestoreBaseModel } from '../base.model';
 
 export type FoodModel = {
   name: string;
@@ -7,4 +7,4 @@ export type FoodModel = {
   categoryId: string;
   subCategoryId: string;
 };
-export type FoodIdModel = FirestoreIdBaseModel<FoodModel>;
+export type FoodIdModel = FirestoreBaseModel<FoodModel>;

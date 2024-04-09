@@ -1,4 +1,4 @@
-import { FirestoreIdBaseModel } from '../base.model';
+import { FirestoreBaseModel } from '../base.model';
 
 export type CategoryModel = {
   name: string;
@@ -6,4 +6,4 @@ export type CategoryModel = {
   description: string;
   origin: string;
 };
-export type CategoryIdModel = FirestoreIdBaseModel<CategoryModel>;
+export type CategoryIdModel = FirestoreBaseModel<CategoryModel>;

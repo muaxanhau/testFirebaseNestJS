@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { categoriesCollection } from 'src/services/firebase';
-import { CategoryModel } from 'src/models';
+import { CategoryModel, deletedLine } from 'src/models';
 import { FoodsService } from './foods.service';
 
 @Injectable()
