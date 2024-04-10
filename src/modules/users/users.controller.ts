@@ -8,14 +8,14 @@ import {
   SetupUserResponseModel,
 } from './models';
 import { HeadersBaseModel } from 'src/models';
-import { NoRoleGuard } from 'src/decorators';
+import { NoAuthGuard, NoRoleGuard } from 'src/decorators';
 import { config } from 'src/config';
 
 @Controller('/users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @NoRoleGuard()
+  @NoAuthGuard()
   @Post()
   async addUser(@Body() body: AddUserBodyModel): Promise<AddUserResponseModel> {
     const { id, ...newUser } = body;

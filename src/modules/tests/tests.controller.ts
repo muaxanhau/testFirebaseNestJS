@@ -5,9 +5,7 @@ import { HeadersBaseModel } from 'src/models';
 import { UsersService } from 'src/services';
 import { firebaseMessaging } from 'src/services/firebase';
 import { PushNotificationResponse } from './models';
-
-import * as admin from 'firebase-admin';
-import firebaseCert from './../../services/firebase/testfirebase-fe46e-firebase-adminsdk-3p205-f8b4fd1839.json';
+import { exceptionUtils } from 'src/utils';
 
 @Controller('/tests')
 export class TestsController {
@@ -23,32 +21,38 @@ export class TestsController {
     const { deviceId } = (await this.usersService.getUserFromToken(token))!;
     if (!deviceId) return null;
 
+    const title = 'App Test';
+    const body = 'Message from PN server';
+
     await firebaseMessaging.send({
-      notification: {
-        title: 'App Test',
-        body: 'Message from PN',
-      },
-      android: {
-        notification: {
-          channelId: 'TestFirebaseNotificationChanel',
-        },
-      },
-      data: {
-        alarm: '',
-      },
+      token: deviceId!,
+      notification: { title, body },
       apns: {
         payload: {
           aps: {
-            alert: 'You got your emails.',
-            title: 'App Test',
-            body: 'Message from PN',
-            badge: 999,
+            title,
+            body,
+            // alert: 'You got your emails.',
+            // badge: 999,
           },
         },
       },
-      token: deviceId!,
+      // android: {
+      //   notification: {
+      //       channelId: '--',
+      //   },
+      // },
+      // data: {
+      //   alarm: '',
+      // },
     });
 
     return null;
+  }
+
+  @NoRoleGuard()
+  @Get('/unauthorize')
+  async unauthorize() {
+    exceptionUtils.unauthorized();
   }
 }
