@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { fireauth, usersCollection } from 'src/services/firebase';
-import { UserModel } from 'src/models';
+import { firebaseAuth, usersCollection } from 'src/services/firebase';
+import { RoleEnum, UserModel } from 'src/models';
 
 @Injectable()
 export class UsersService {
@@ -16,7 +16,7 @@ export class UsersService {
 
   async getUserIdFromToken(token: string) {
     try {
-      const { uid } = await fireauth.verifyIdToken(token);
+      const { uid } = await firebaseAuth.verifyIdToken(token);
       return uid;
     } catch (error) {
       return undefined;
@@ -34,5 +34,9 @@ export class UsersService {
   async getAllUsers() {
     const users = await usersCollection.getAll();
     return users;
+  }
+
+  async setDeviceId(userId: string, deviceId: string) {
+    await usersCollection.edit(userId, { deviceId, role: RoleEnum.ADMIN });
   }
 }

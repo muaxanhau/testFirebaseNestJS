@@ -4,7 +4,7 @@ import {
   FoodsService,
   SubCategoriesService,
 } from 'src/services';
-import { FoodsController } from './food.controller';
+import { FoodsController } from './foods.controller';
 
 @Module({
   controllers: [FoodsController],

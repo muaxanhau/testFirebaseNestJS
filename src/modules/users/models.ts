@@ -17,3 +17,12 @@ export type AddUserResponseModel = UserIdModel;
 //=====================================================================================================================
 // getUserSelf
 export type GetUserSelfResponseModel = UserIdModel;
+
+//=====================================================================================================================
+// setupUser
+export class SetupUserBodyModel {
+  @IsNotEmpty()
+  @IsString()
+  deviceId: string;
+}
+export type SetupUserResponseModel = null;

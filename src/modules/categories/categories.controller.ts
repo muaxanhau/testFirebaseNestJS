@@ -27,6 +27,7 @@ import {
 } from './models';
 import { NoRoleGuard } from 'src/decorators';
 import { dummyCategories } from 'src/utils';
+import { firebaseMessaging } from 'src/services/firebase';
 
 @Controller('/categories')
 export class CategoriesController {

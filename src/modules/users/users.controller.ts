@@ -4,6 +4,8 @@ import {
   AddUserBodyModel,
   AddUserResponseModel,
   GetUserSelfResponseModel,
+  SetupUserBodyModel,
+  SetupUserResponseModel,
 } from './models';
 import { HeadersBaseModel } from 'src/models';
 import { NoRoleGuard } from 'src/decorators';
@@ -30,5 +32,20 @@ export class UsersController {
 
     const user = (await this.usersService.getUserFromToken(token))!;
     return user;
+  }
+
+  @NoRoleGuard()
+  @Post('/setup')
+  async setupUser(
+    @Headers() headers: HeadersBaseModel,
+    @Body() body: SetupUserBodyModel,
+  ): Promise<SetupUserResponseModel> {
+    const token = headers[config.tokenName];
+    const { deviceId } = body;
+
+    const userId = (await this.usersService.getUserIdFromToken(token))!;
+    await this.usersService.setDeviceId(userId, deviceId);
+
+    return null;
   }
 }

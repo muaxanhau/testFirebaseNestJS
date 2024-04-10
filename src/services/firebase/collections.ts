@@ -13,7 +13,7 @@ import {
 } from 'src/models';
 import { AddPrefixToKeys, Timestamp } from 'firebase-admin/firestore';
 import { FirestoreBaseModel } from 'src/models';
-import { firestore } from './config';
+import { firebaseStore } from './config';
 import { config } from 'src/config';
 
 type QueryCollectionType = FirebaseFirestore.Query<
@@ -37,7 +37,7 @@ type Overwrite = {
 };
 type Options<T> = Partial<T> | void;
 
-export class Collection<T extends Object & AddPrefixToKeys<string, any>> {
+class Collection<T extends Object & AddPrefixToKeys<string, any>> {
   private readonly collection: CollectionType;
 
   private async queryPagination(
@@ -107,9 +107,11 @@ export class Collection<T extends Object & AddPrefixToKeys<string, any>> {
     return activatedRecords;
   }
 
+  // ==================================================================================================
   constructor(collectionName: string) {
-    this.collection = firestore.collection(collectionName);
+    this.collection = firebaseStore.collection(collectionName);
   }
+  // ==================================================================================================
 
   core() {
     return this.collection;
@@ -199,10 +201,10 @@ export class Collection<T extends Object & AddPrefixToKeys<string, any>> {
     return record;
   }
 
-  async edit(id: string, data: T) {
+  async edit(id: string, data: Partial<T>) {
     await this.collection.doc(id).update(data);
 
-    const record: FirestoreBaseModel<T> = { id, ...data };
+    const record: FirestoreBaseModel<T> = await this.get(id);
     return record;
   }
 
