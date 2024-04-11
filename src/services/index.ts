@@ -5,3 +5,4 @@ export * from './carts.service';
 export * from './restaurants.service';
 export * from './subCategories.service';
 export * from './foods.service';
+export * from './pushNotification.service';

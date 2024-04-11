@@ -1,15 +1,17 @@
-import { Body, Controller, Get, Post, Headers } from '@nestjs/common';
+import { Controller, Get, Post, Headers } from '@nestjs/common';
 import { config } from 'src/config';
 import { NoRoleGuard } from 'src/decorators';
 import { HeadersBaseModel } from 'src/models';
-import { UsersService } from 'src/services';
-import { firebaseMessaging } from 'src/services/firebase';
+import { PushNotificationService, UsersService } from 'src/services';
 import { PushNotificationResponse } from './models';
 import { exceptionUtils } from 'src/utils';
 
 @Controller('/tests')
 export class TestsController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly pushNotificationService: PushNotificationService,
+  ) {}
 
   @NoRoleGuard()
   @Post('/push-notification')
@@ -22,30 +24,8 @@ export class TestsController {
     if (!deviceId) return null;
 
     const title = 'App Test';
-    const body = 'Message from PN server';
-
-    await firebaseMessaging.send({
-      token: deviceId!,
-      notification: { title, body },
-      apns: {
-        payload: {
-          aps: {
-            title,
-            body,
-            // alert: 'You got your emails.',
-            // badge: 999,
-          },
-        },
-      },
-      // android: {
-      //   notification: {
-      //       channelId: '--',
-      //   },
-      // },
-      // data: {
-      //   alarm: '',
-      // },
-    });
+    const message = 'Message from PN server';
+    this.pushNotificationService.send({ deviceId, title, message });
 
     return null;
   }
