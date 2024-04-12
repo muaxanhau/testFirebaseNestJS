@@ -37,6 +37,6 @@ export class UsersService {
   }
 
   async setDeviceId(userId: string, deviceId: string) {
-    await usersCollection.edit(userId, { deviceId, role: RoleEnum.ADMIN });
+    await usersCollection.edit(userId, { deviceId });
   }
 }

@@ -21,7 +21,7 @@ export class TestsController {
     const token = headers[config.tokenName];
 
     const { deviceId } = (await this.usersService.getUserFromToken(token))!;
-    if (!deviceId) return null;
+    if (!deviceId?.length) return null;
 
     const title = 'App Test';
     const message = 'Message from PN server';
