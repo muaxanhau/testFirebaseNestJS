@@ -8,6 +8,7 @@ import {
   ItemModel,
   RestaurantAndFoodsModel,
   RestaurantModel,
+  StatusFoodModel,
   SubCategoryModel,
   UserModel,
 } from 'src/models';
@@ -237,3 +238,6 @@ export const restaurantAndFoodsCollection =
   new Collection<RestaurantAndFoodsModel>('restaurant_foods');
 export const itemsCollection = new Collection<ItemModel>('items');
 export const cartsCollection = new Collection<CartModel>('carts');
+export const statusFoodsCollection = new Collection<StatusFoodModel>(
+  'statusFoods',
+);

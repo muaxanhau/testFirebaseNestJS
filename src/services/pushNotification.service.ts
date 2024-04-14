@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { firebaseMessaging } from './firebase';
+import { TriggerKeyPushNotificationEnum } from 'src/models';
 
 @Injectable()
 export class PushNotificationService {
-  async send({ deviceId, title, message }: SendProps) {
+  async send({ deviceId, title, message, data, key }: SendProps) {
     await firebaseMessaging.send({
       token: deviceId,
       notification: { title, body: message },
@@ -18,9 +19,8 @@ export class PushNotificationService {
         },
       },
       data: {
-        alarm: '',
-        data1: 'test1',
-        data2: 'test2',
+        ...data,
+        key: key?.toString() || '',
       },
 
       // android: {
@@ -36,4 +36,6 @@ type SendProps = {
   deviceId: string;
   title: string;
   message: string;
+  key?: TriggerKeyPushNotificationEnum;
+  data?: { [key: string]: string };
 };

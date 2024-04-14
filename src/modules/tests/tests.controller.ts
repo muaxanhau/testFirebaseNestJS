@@ -1,16 +1,25 @@
-import { Controller, Get, Post, Headers } from '@nestjs/common';
+import { Controller, Get, Post, Headers, Req } from '@nestjs/common';
 import { config } from 'src/config';
 import { NoRoleGuard } from 'src/decorators';
 import { HeadersBaseModel } from 'src/models';
-import { PushNotificationService, UsersService } from 'src/services';
-import { PushNotificationResponse } from './models';
-import { exceptionUtils } from 'src/utils';
+import {
+  PaymentService,
+  PushNotificationService,
+  UsersService,
+} from 'src/services';
+import {
+  GetStripePaymentResponse,
+  PushNotificationResponse,
+  UnauthorizeResponse,
+} from './models';
+import { exceptionUtils, utils } from 'src/utils';
 
 @Controller('/tests')
 export class TestsController {
   constructor(
     private readonly usersService: UsersService,
     private readonly pushNotificationService: PushNotificationService,
+    private readonly paymentService: PaymentService,
   ) {}
 
   @NoRoleGuard()
@@ -32,7 +41,19 @@ export class TestsController {
 
   @NoRoleGuard()
   @Get('/unauthorize')
-  async unauthorize() {
+  async unauthorize(): Promise<UnauthorizeResponse> {
     exceptionUtils.unauthorized();
+  }
+
+  @NoRoleGuard()
+  @Get('/stripe-payment')
+  async getStripePayment(
+    @Req() request: Request,
+  ): Promise<GetStripePaymentResponse> {
+    const baseUrl = utils.getBaseUrl(request);
+
+    const url = (await this.paymentService.getStripeUrl(baseUrl)) || '';
+
+    return { url };
   }
 }

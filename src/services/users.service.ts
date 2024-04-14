@@ -14,6 +14,11 @@ export class UsersService {
     return user;
   }
 
+  async getUserBy(conditions: Partial<UserModel>) {
+    const user = await usersCollection.getBy(conditions);
+    return user;
+  }
+
   async getUserIdFromToken(token: string) {
     try {
       const { uid } = await firebaseAuth.verifyIdToken(token);

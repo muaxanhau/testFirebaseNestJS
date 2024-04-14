@@ -1,7 +1,7 @@
 import * as admin from 'firebase-admin';
 import { config } from 'src/config';
 
-const { projectId, privateKey, clientEmail, databaseURL } = config;
+const { projectId, privateKey, clientEmail, databaseURL } = config.firebase;
 
 admin.initializeApp({
   credential: admin.credential.cert({ projectId, privateKey, clientEmail }),

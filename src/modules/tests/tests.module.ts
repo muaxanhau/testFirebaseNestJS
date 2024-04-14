@@ -1,9 +1,13 @@
 import { Module } from '@nestjs/common';
 import { TestsController } from './tests.controller';
-import { PushNotificationService, UsersService } from 'src/services';
+import {
+  PaymentService,
+  PushNotificationService,
+  UsersService,
+} from 'src/services';
 
 @Module({
   controllers: [TestsController],
-  providers: [UsersService, PushNotificationService],
+  providers: [UsersService, PushNotificationService, PaymentService],
 })
 export class TestsModule {}

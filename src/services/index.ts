@@ -6,3 +6,5 @@ export * from './restaurants.service';
 export * from './subCategories.service';
 export * from './foods.service';
 export * from './pushNotification.service';
+export * from './payment.service';
+export * from './statusFoods.service';

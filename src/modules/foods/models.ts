@@ -1,5 +1,10 @@
 import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
-import { FoodIdModel } from 'src/models';
+import {
+  FoodIdModel,
+  RoleEnum,
+  StatusFoodEnum,
+  StatusFoodIdModel,
+} from 'src/models';
 
 //=====================================================================================================================
 // addFood
@@ -40,3 +45,35 @@ export class GetAllFoodsByQueryQueryModel {
   subCategoryId?: string;
 }
 export type GetAllFoodsByQueryResponseModel = FoodIdModel[];
+
+//=====================================================================================================================
+// addFoodSession
+export class AddFoodSessionBodyModel {
+  @IsString()
+  @IsNotEmpty()
+  foodId: string;
+}
+export type AddFoodSessionResponseModel = StatusFoodIdModel;
+
+//=====================================================================================================================
+// getFoodSessions
+export type GetFoodSessionsResponseModel = {
+  id: string;
+  status: StatusFoodEnum;
+  food: {
+    id: string;
+    name: string;
+  };
+  user: {
+    id: string;
+    role: RoleEnum;
+  };
+}[];
+
+//=====================================================================================================================
+// updateFoodSession
+export class UpdateFoodSessionParamModel {
+  @IsNotEmpty()
+  @IsString()
+  id: string;
+}
