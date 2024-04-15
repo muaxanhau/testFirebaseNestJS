@@ -1,7 +1,8 @@
-import { FirestoreIdBaseModel } from '../base.model';
+import { FirestoreBaseModel } from '../base.model';
 import { RoleEnum } from '../enums';
 
 export type UserModel = {
   role: RoleEnum;
+  deviceId?: string;
 };
-export type UserIdModel = FirestoreIdBaseModel<UserModel>;
+export type UserIdModel = FirestoreBaseModel<UserModel>;

@@ -5,12 +5,20 @@ export type EnvironmentsConfigModel = Readonly<
     EnvironmentList,
     {
       enableLog: boolean;
-      projectId: string;
-      privateKey: string;
-      clientEmail: string;
-      databaseURL: string;
-      tokenName: string;
       limitPage: number;
+      tokenName: string;
+      prefix: string;
+
+      firebase: {
+        projectId: string;
+        privateKey: string;
+        clientEmail: string;
+        databaseURL: string;
+      };
+
+      stripe: {
+        privateKey: string;
+      };
     }
   >
 >;

@@ -1,16 +1,20 @@
 import {
   CartModel,
   CategoryModel,
+  deletedLine,
+  FirestoreDeletedBaseModel,
+  FirestoreFullBaseModel,
   FoodModel,
   ItemModel,
   RestaurantAndFoodsModel,
   RestaurantModel,
+  StatusFoodModel,
   SubCategoryModel,
   UserModel,
 } from 'src/models';
-import { AddPrefixToKeys } from 'firebase-admin/firestore';
-import { FirestoreIdBaseModel } from 'src/models';
-import { firestore } from './config';
+import { AddPrefixToKeys, Timestamp } from 'firebase-admin/firestore';
+import { FirestoreBaseModel } from 'src/models';
+import { firebaseStore } from './config';
 import { config } from 'src/config';
 
 type QueryCollectionType = FirebaseFirestore.Query<
@@ -34,10 +38,10 @@ type Overwrite = {
 };
 type Options<T> = Partial<T> | void;
 
-export class Collection<T extends Object & AddPrefixToKeys<string, any>> {
+class Collection<T extends Object & AddPrefixToKeys<string, any>> {
   private readonly collection: CollectionType;
 
-  private async paginate(
+  private async queryPagination(
     queryCollection: QueryCollectionType,
     options: Options<Pagination>,
   ) {
@@ -59,7 +63,7 @@ export class Collection<T extends Object & AddPrefixToKeys<string, any>> {
     return query;
   }
 
-  private orderBy<T>(
+  private queryOrderBy<T>(
     queryCollection: QueryCollectionType,
     options: Options<OrderBy<T>>,
   ) {
@@ -90,9 +94,25 @@ export class Collection<T extends Object & AddPrefixToKeys<string, any>> {
     return query;
   }
 
-  constructor(collectionName: string) {
-    this.collection = firestore.collection(collectionName);
+  private filterActivatedRecords(records: FirestoreFullBaseModel<T>[]) {
+    const activatedRecords = records.filter(
+      (record) => record[deletedLine] === undefined,
+    ) as FirestoreBaseModel<T>[];
+    return activatedRecords;
   }
+
+  private filterInactivatedRecords(records: FirestoreFullBaseModel<T>[]) {
+    const activatedRecords = records.filter(
+      (record) => record[deletedLine] !== undefined,
+    ) as FirestoreBaseModel<T>[];
+    return activatedRecords;
+  }
+
+  // ==================================================================================================
+  constructor(collectionName: string) {
+    this.collection = firebaseStore.collection(collectionName);
+  }
+  // ==================================================================================================
 
   core() {
     return this.collection;
@@ -100,29 +120,38 @@ export class Collection<T extends Object & AddPrefixToKeys<string, any>> {
 
   async exist(id: string) {
     const rawRecord = await this.collection.doc(id).get();
-    return rawRecord.exists;
+    const record: FirestoreFullBaseModel<T> = {
+      id: rawRecord.id,
+      ...(rawRecord.data() as FirestoreDeletedBaseModel<T>),
+    };
+    const isExisted = !record.deletedAt && rawRecord.exists;
+    return isExisted;
   }
 
   async get(id: string) {
     const rawRecord = await this.collection.doc(id).get();
-    const record: FirestoreIdBaseModel<T> = {
+    const record: FirestoreBaseModel<T> = {
       id: rawRecord.id,
       ...(rawRecord.data() as T),
     };
     return record;
   }
 
-  async getAll(options: Options<Pagination>) {
-    const query = await this.paginate(this.collection, options);
+  async getAll(options: Options<Pagination & OrderBy<T>>) {
+    let query: QueryCollectionType = this.collection;
+    query = this.queryOrderBy(query, options);
+    query = await this.queryPagination(query, options);
 
     const rawRecords = await query.get();
-    const records: FirestoreIdBaseModel<T>[] = rawRecords.docs.map(
+    const records: FirestoreFullBaseModel<T>[] = rawRecords.docs.map(
       (record) => ({
         id: record.id,
-        ...(record.data() as T),
+        ...(record.data() as FirestoreDeletedBaseModel<T>),
       }),
     );
-    return records;
+
+    const activatedRecords = this.filterActivatedRecords(records);
+    return activatedRecords;
   }
 
   async getBy(
@@ -130,25 +159,26 @@ export class Collection<T extends Object & AddPrefixToKeys<string, any>> {
     options: Options<Pagination & OrderBy<T>>,
   ) {
     let query: QueryCollectionType = this.collection;
-
     query = this.queryConditions(query, conditions);
-    query = this.orderBy(query, options);
-    query = await this.paginate(query, options);
+    query = this.queryOrderBy(query, options);
+    query = await this.queryPagination(query, options);
 
     const rawRecords = await query.get();
-    const records: FirestoreIdBaseModel<T>[] = rawRecords.docs.map(
+    const records: FirestoreFullBaseModel<T>[] = rawRecords.docs.map(
       (record) => ({
         id: record.id,
-        ...(record.data() as T),
+        ...(record.data() as FirestoreDeletedBaseModel<T>),
       }),
     );
-    return records;
+
+    const activatedRecords = this.filterActivatedRecords(records);
+    return activatedRecords;
   }
 
   async add(data: T) {
     const response = await this.collection.add(data);
     const rawRecord = await response.get();
-    const record: FirestoreIdBaseModel<T> = {
+    const record: FirestoreBaseModel<T> = {
       id: rawRecord.id,
       ...(rawRecord.data() as T),
     };
@@ -159,7 +189,7 @@ export class Collection<T extends Object & AddPrefixToKeys<string, any>> {
     const existed = await this.exist(id);
     if (!existed) {
       await this.collection.doc(id).set(data);
-      const record: FirestoreIdBaseModel<T> = { id, ...data };
+      const record: FirestoreBaseModel<T> = { id, ...data };
       return record;
     }
 
@@ -168,19 +198,20 @@ export class Collection<T extends Object & AddPrefixToKeys<string, any>> {
       return record;
     }
 
-    const record: FirestoreIdBaseModel<T> = { id, ...data };
+    const record: FirestoreBaseModel<T> = { id, ...data };
     return record;
   }
 
-  async edit(id: string, data: T) {
+  async edit(id: string, data: Partial<T>) {
     await this.collection.doc(id).update(data);
 
-    const record: FirestoreIdBaseModel<T> = { id, ...data };
+    const record: FirestoreBaseModel<T> = await this.get(id);
     return record;
   }
 
   async delete(id: string) {
-    await this.collection.doc(id).delete();
+    const deletedAt = Timestamp.fromDate(new Date());
+    await this.collection.doc(id).update({ deletedAt });
   }
 
   async deleteBy(conditions: Partial<T>) {
@@ -189,7 +220,8 @@ export class Collection<T extends Object & AddPrefixToKeys<string, any>> {
     query = this.queryConditions(query, conditions);
     const raw = await query.get();
 
-    await Promise.all(raw.docs.map((doc) => doc.ref.delete()));
+    const deletedAt = Timestamp.fromDate(new Date());
+    await Promise.all(raw.docs.map((doc) => doc.ref.update({ deletedAt })));
   }
 }
 
@@ -206,3 +238,6 @@ export const restaurantAndFoodsCollection =
   new Collection<RestaurantAndFoodsModel>('restaurant_foods');
 export const itemsCollection = new Collection<ItemModel>('items');
 export const cartsCollection = new Collection<CartModel>('carts');
+export const statusFoodsCollection = new Collection<StatusFoodModel>(
+  'statusFoods',
+);

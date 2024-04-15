@@ -6,3 +6,4 @@ export * from './cart.model';
 export * from './subCategory.model';
 export * from './food.model';
 export * from './restaurants_foods.model';
+export * from './statusFood.model';

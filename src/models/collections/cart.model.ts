@@ -1,4 +1,4 @@
-import { FirestoreIdBaseModel } from '../base.model';
+import { FirestoreBaseModel } from '../base.model';
 import { Timestamp } from 'firebase-admin/firestore';
 
 export type CartModel = {
@@ -8,4 +8,4 @@ export type CartModel = {
   paidAt?: Timestamp;
   quantity: number;
 };
-export type CartIdModel = FirestoreIdBaseModel<CartModel>;
+export type CartIdModel = FirestoreBaseModel<CartModel>;

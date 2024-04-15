@@ -1,4 +1,4 @@
-import { FirestoreIdBaseModel } from '../base.model';
+import { FirestoreBaseModel } from '../base.model';
 
 export type RestaurantModel = {
   name: string;
@@ -9,4 +9,4 @@ export type RestaurantModel = {
   openAt: string;
   closeAt: string;
 };
-export type RestaurantIdModel = FirestoreIdBaseModel<RestaurantModel>;
+export type RestaurantIdModel = FirestoreBaseModel<RestaurantModel>;

@@ -1,11 +1,20 @@
 import { IsNotEmpty, IsString } from 'class-validator';
+import { Timestamp } from 'firebase-admin/firestore';
 import { tokenName } from 'src/config';
-import { Prettify } from 'src/utils';
 
 /**
  * response collection for firebase model
  */
-export type FirestoreIdBaseModel<T> = Prettify<{ id: string } & T>;
+export const deletedLine = 'deletedAt' as const;
+type FirestoreId = {
+  id: string;
+};
+type FirestoreDeleted = {
+  [deletedLine]?: Timestamp;
+};
+export type FirestoreBaseModel<T> = FirestoreId & T;
+export type FirestoreDeletedBaseModel<T> = FirestoreDeleted & T;
+export type FirestoreFullBaseModel<T> = FirestoreId & FirestoreDeleted & T;
 
 type ResponseBaseModel<T> = {
   statusCode: number;
