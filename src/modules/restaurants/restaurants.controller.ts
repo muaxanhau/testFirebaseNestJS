@@ -19,12 +19,12 @@ export class RestaurantsController {
   async addDummiesRestaurants() {
     await Promise.all(
       dummyRestaurants.map((restaurant) =>
-        this.restaurantsService.addRestaurant(restaurant),
+        this.restaurantsService.add(restaurant),
       ),
     );
 
-    const restaurants = await this.restaurantsService.getAllRestaurants();
-    const allFoods = await this.foodsService.getAllFoods();
+    const restaurants = await this.restaurantsService.getAll();
+    const allFoods = await this.foodsService.getAll();
     await Promise.all(
       restaurants.map(({ id: restaurantId, name }) => {
         const { foods } = dummyRestaurantFoods.filter(
@@ -49,14 +49,14 @@ export class RestaurantsController {
   async addRestaurant(
     @Body() body: AddRestaurantBodyModel,
   ): Promise<AddRestaurantResponseModel> {
-    const data = await this.restaurantsService.addRestaurant(body);
+    const data = await this.restaurantsService.add(body);
     return data;
   }
 
   @NoRoleGuard()
   @Get()
   async getAllRestaurants(): Promise<GetAllRestaurantsResponseModel> {
-    const data = await this.restaurantsService.getAllRestaurants();
+    const data = await this.restaurantsService.getAll();
     return data;
   }
 }

@@ -1,6 +1,3 @@
-import { IsInt, IsNotEmpty, IsString, Min } from 'class-validator';
-import { CartIdModel, ItemIdModel, UserIdModel } from 'src/models';
-
 //=====================================================================================================================
-// getCartsByUserId
+// logout
 export type LogoutResponseModel = null;

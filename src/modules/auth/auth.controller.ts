@@ -15,7 +15,7 @@ export class AuthController {
     @Headers() headers: HeadersBaseModel,
   ): Promise<LogoutResponseModel> {
     const token = headers[config.tokenName];
-    const userId = (await this.usersService.getUserIdFromToken(token))!;
+    const userId = (await this.usersService.getUserIdByToken(token))!;
     await this.usersService.setDeviceId(userId, '');
     return null;
   }

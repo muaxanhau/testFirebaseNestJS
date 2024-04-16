@@ -7,7 +7,7 @@ import { RestaurantAndFoodsModel, RestaurantModel } from 'src/models';
 
 @Injectable()
 export class RestaurantsService {
-  async addRestaurant(data: RestaurantModel) {
+  async add(data: RestaurantModel) {
     const restaurant = await restaurantsCollection.add(data);
     return restaurant;
   }
@@ -17,7 +17,7 @@ export class RestaurantsService {
     return restaurantAndFoods;
   }
 
-  async getAllRestaurants() {
+  async getAll() {
     const restaurants = await restaurantsCollection.getAll();
     return restaurants;
   }

@@ -1,7 +1,7 @@
-import { Controller, Get, Post, Headers, Req } from '@nestjs/common';
+import { Controller, Get, Post, Headers, Req, Body } from '@nestjs/common';
 import { config } from 'src/config';
-import { NoRoleGuard } from 'src/decorators';
-import { HeadersBaseModel } from 'src/models';
+import { NoAuthGuard, NoRoleGuard } from 'src/decorators';
+import { HeadersBaseModel, StripeWebhookResponseBaseModel } from 'src/models';
 import {
   PaymentService,
   PushNotificationService,
@@ -13,6 +13,7 @@ import {
   UnauthorizeResponse,
 } from './models';
 import { exceptionUtils, utils } from 'src/utils';
+import { Stripe } from 'stripe';
 
 @Controller('/tests')
 export class TestsController {
@@ -29,7 +30,7 @@ export class TestsController {
   ): Promise<PushNotificationResponse> {
     const token = headers[config.tokenName];
 
-    const { deviceId } = (await this.usersService.getUserFromToken(token))!;
+    const { deviceId } = (await this.usersService.getByToken(token))!;
     if (!deviceId?.length) return null;
 
     const title = 'App Test';
@@ -52,7 +53,23 @@ export class TestsController {
   ): Promise<GetStripePaymentResponse> {
     const baseUrl = utils.getBaseUrl(request);
 
-    const url = (await this.paymentService.getStripeUrl(baseUrl)) || '';
+    const { id, url } = await this.paymentService.getStripe(baseUrl, [
+      {
+        quantity: 1,
+        price_data: {
+          currency: 'vnd',
+          product_data: {
+            name: 'Food test 1',
+          },
+          unit_amount: 20000,
+        },
+      },
+    ]);
+    if (!url?.length) {
+      return { url: '' };
+    }
+
+    // id
 
     return { url };
   }

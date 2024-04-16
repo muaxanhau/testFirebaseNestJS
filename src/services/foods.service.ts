@@ -4,21 +4,22 @@ import { FoodModel } from 'src/models';
 
 @Injectable()
 export class FoodsService {
-  async addFood(data: FoodModel) {
+  async add(data: FoodModel) {
     const food = await foodsCollection.add(data);
     return food;
   }
 
-  async getAllFoods() {
+  async get(id: string) {
+    const food = await foodsCollection.get(id);
+    return food;
+  }
+
+  async getAll() {
     const foods = await foodsCollection.getAll();
     return foods;
   }
 
-  async getAllFoodsBy({
-    restaurantId,
-    categoryId,
-    subCategoryId,
-  }: GetAllFoodsByProps) {
+  async getBy({ restaurantId, categoryId, subCategoryId }: GetAllFoodsByProps) {
     const restaurantAndFoods = await restaurantAndFoodsCollection.getBy({
       restaurantId,
     });

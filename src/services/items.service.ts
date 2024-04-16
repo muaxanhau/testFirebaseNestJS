@@ -5,17 +5,17 @@ import { config } from 'src/config';
 
 @Injectable()
 export class ItemsService {
-  async getAllItems() {
+  async getAll() {
     const items = await itemsCollection.getAll();
     return items;
   }
 
-  async getItem(id: string) {
+  async get(id: string) {
     const item = await itemsCollection.get(id);
     return item;
   }
 
-  async getItemsByCategoryId(id: string, page = 0) {
+  async getByCategoryId(id: string, page = 0) {
     const allItems = await itemsCollection.getBy({ categoryId: id });
     const lengthFullItems = allItems.length;
 
@@ -36,16 +36,16 @@ export class ItemsService {
     };
   }
 
-  async addItem(data: ItemModel) {
+  async add(data: ItemModel) {
     const item = await itemsCollection.add(data);
     return item;
   }
 
-  async deleteItem(id: string) {
+  async delete(id: string) {
     await itemsCollection.delete(id);
   }
 
-  async deleteAllItemsByCategoryId(id: string) {
-    await itemsCollection.deleteBy({ categoryId: id });
+  async deleteBy(conditions: Partial<ItemModel>) {
+    await itemsCollection.deleteBy(conditions);
   }
 }

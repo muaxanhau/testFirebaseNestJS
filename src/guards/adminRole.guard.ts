@@ -27,7 +27,7 @@ export class AdminRoleGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const token = request.headers[config.tokenName];
 
-    const user = (await this.userService.getUserFromToken(token))!;
+    const user = (await this.userService.getByToken(token))!;
     const isUser = user.role === RoleEnum.USER;
     if (isUser) {
       return exceptionUtils.role();

@@ -1,31 +1,43 @@
 import { Injectable } from '@nestjs/common';
 import { statusFoodsCollection } from './firebase';
-import { StatusFoodEnum, StatusFoodModel } from 'src/models';
+import {
+  RoleEnum,
+  StatusFoodEnum,
+  StatusFoodModel,
+  TriggerKeyPushNotificationEnum,
+} from 'src/models';
+import { UsersService } from './users.service';
+import { PushNotificationService } from './pushNotification.service';
 
 @Injectable()
 export class StatusFoodsService {
-  async addStatusFood(data: StatusFoodModel) {
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly pushNotificationService: PushNotificationService,
+  ) {}
+
+  async add(data: StatusFoodModel) {
     const statusFood = await statusFoodsCollection.add(data);
     return statusFood;
   }
 
-  async getAllStatusFoods() {
+  async getAll() {
     const statusFoods = await statusFoodsCollection.getAll();
     return statusFoods;
   }
 
-  async getStatusFood(id: string) {
+  async get(id: string) {
     const statusFoods = await statusFoodsCollection.get(id);
     return statusFoods;
   }
 
-  async getStatusFoodsBy(conditions: Partial<StatusFoodModel>) {
+  async getBy(conditions: Partial<StatusFoodModel>) {
     const statusFoods = await statusFoodsCollection.getBy(conditions);
     return statusFoods;
   }
 
   async updateNextStatusFood(id: string) {
-    const { status } = await this.getStatusFood(id);
+    const { status, userId } = await this.get(id);
     const nextStatus =
       status === StatusFoodEnum.PENDING
         ? StatusFoodEnum.PAYMENT
@@ -33,5 +45,37 @@ export class StatusFoodsService {
           ? StatusFoodEnum.WAITING
           : StatusFoodEnum.DONE;
     statusFoodsCollection.edit(id, { status: nextStatus });
+
+    const title = 'Test Firebase app';
+    const message = 'Status food updated';
+
+    const admins = await this.usersService.getBy({
+      role: RoleEnum.ADMIN,
+    });
+    const loggedInAdmins = admins.filter((user) => !!user.deviceId?.length);
+    await Promise.all(
+      loggedInAdmins.map((admin) =>
+        this.pushNotificationService.send({
+          deviceId: admin.deviceId!,
+          title,
+          message,
+          key: TriggerKeyPushNotificationEnum.STATUS_FOOD,
+        }),
+      ),
+    );
+
+    const { deviceId } = await this.usersService.get(userId);
+    if (!!deviceId?.length) {
+      await this.pushNotificationService.send({
+        deviceId,
+        title,
+        message,
+        key: TriggerKeyPushNotificationEnum.STATUS_FOOD,
+      });
+    }
+  }
+
+  async updatePaymentId(statusFoodId: string, paymentId: string) {
+    statusFoodsCollection.edit(statusFoodId, { paymentId });
   }
 }

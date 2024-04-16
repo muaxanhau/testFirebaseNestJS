@@ -5,17 +5,17 @@ import { CartModel } from 'src/models';
 
 @Injectable()
 export class CartsService {
-  async getAllCarts() {
+  async getAll() {
     const carts = await cartsCollection.getAll();
     return carts;
   }
 
-  async getCartsByUserId(userId: string) {
-    const carts = await cartsCollection.getBy({ userId });
+  async getBy(conditions: Partial<CartModel>) {
+    const carts = await cartsCollection.getBy(conditions);
     return carts;
   }
 
-  async addCart(userId: string, itemId: string, quantity: number) {
+  async add(userId: string, itemId: string, quantity: number) {
     const data: CartModel = {
       userId,
       itemId,

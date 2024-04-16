@@ -7,10 +7,12 @@ import {
   Headers,
   Put,
   Param,
+  Req,
 } from '@nestjs/common';
 import {
   CategoriesService,
   FoodsService,
+  PaymentService,
   PushNotificationService,
   StatusFoodsService,
   SubCategoriesService,
@@ -21,13 +23,15 @@ import {
   AddFoodResponseModel,
   AddFoodSessionBodyModel,
   AddFoodSessionResponseModel,
+  GenerateStripePaymentUrlResponseModel,
   GetAllFoodsByQueryQueryModel,
   GetAllFoodsByQueryResponseModel,
   GetFoodSessionsResponseModel,
   UpdateFoodSessionParamModel,
+  UpdateFoodSessionResponseModel,
 } from './models';
 import { NoRoleGuard } from 'src/decorators';
-import { dummyFoods, exceptionUtils } from 'src/utils';
+import { dummyFoods, exceptionUtils, utils } from 'src/utils';
 import {
   HeadersBaseModel,
   RoleEnum,
@@ -45,14 +49,13 @@ export class FoodsController {
     private readonly subCategoriesService: SubCategoriesService,
     private readonly statusFoodsService: StatusFoodsService,
     private readonly pushNotificationService: PushNotificationService,
+    private readonly paymentService: PaymentService,
   ) {}
 
   @Post('/dummies')
   async addDummiesFoods() {
-    const categories = await this.categoriesService.getAllCategories({});
-    const subCategories = await this.subCategoriesService.getAllSubCategories(
-      {},
-    );
+    const categories = await this.categoriesService.getAll({});
+    const subCategories = await this.subCategoriesService.getAll({});
 
     dummyFoods.map((food) => {
       const { name, description, category, subCategory } = food;
@@ -62,7 +65,7 @@ export class FoodsController {
         (subCat) => subCat.name === subCategory,
       )[0].id;
 
-      this.foodsService.addFood({
+      this.foodsService.add({
         name,
         description,
         image: '',
@@ -75,7 +78,7 @@ export class FoodsController {
 
   @Post()
   async addFood(@Body() body: AddFoodBodyModel): Promise<AddFoodResponseModel> {
-    const data = await this.foodsService.addFood(body);
+    const data = await this.foodsService.add(body);
     return data;
   }
 
@@ -85,7 +88,7 @@ export class FoodsController {
     @Query() query: GetAllFoodsByQueryQueryModel,
   ): Promise<GetAllFoodsByQueryResponseModel> {
     const { restaurantId, categoryId, subCategoryId } = query;
-    const data = await this.foodsService.getAllFoodsBy({
+    const data = await this.foodsService.getBy({
       restaurantId,
       categoryId,
       subCategoryId,
@@ -100,16 +103,17 @@ export class FoodsController {
     @Body() body: AddFoodSessionBodyModel,
   ): Promise<AddFoodSessionResponseModel> {
     const token = headers[config.tokenName];
-    const userId = (await this.usersService.getUserIdFromToken(token))!;
+    const userId = (await this.usersService.getUserIdByToken(token))!;
     const { foodId } = body;
 
-    const statusFood = await this.statusFoodsService.addStatusFood({
+    const statusFood = await this.statusFoodsService.add({
       userId,
       foodId,
       status: StatusFoodEnum.PENDING,
+      paymentId: '',
     });
 
-    const admins = await this.usersService.getUserBy({
+    const admins = await this.usersService.getBy({
       role: RoleEnum.ADMIN,
     });
 
@@ -134,14 +138,14 @@ export class FoodsController {
     @Headers() headers: HeadersBaseModel,
   ): Promise<GetFoodSessionsResponseModel> {
     const token = headers[config.tokenName];
-    const { id, role } = (await this.usersService.getUserFromToken(token))!;
-    const foods = await this.foodsService.getAllFoods();
+    const { id, role } = (await this.usersService.getByToken(token))!;
+    const foods = await this.foodsService.getAll();
 
     const statusFoods = await (role === RoleEnum.USER
-      ? this.statusFoodsService.getStatusFoodsBy({
+      ? this.statusFoodsService.getBy({
           userId: id,
         })
-      : this.statusFoodsService.getAllStatusFoods());
+      : this.statusFoodsService.getAll());
 
     const response: GetFoodSessionsResponseModel = statusFoods.map(
       (statusFood) => {
@@ -166,16 +170,50 @@ export class FoodsController {
   }
 
   @NoRoleGuard()
+  @Get('/sessions/:id/payment/stripe')
+  async generateStripePaymentUrl(
+    @Req() request: Request,
+    @Param() param: UpdateFoodSessionParamModel,
+  ): Promise<GenerateStripePaymentUrlResponseModel> {
+    const { id: statusFoodId } = param;
+    const baseUrl = utils.getBaseUrl(request);
+
+    const { foodId } = await this.statusFoodsService.get(statusFoodId);
+    const { name } = await this.foodsService.get(foodId);
+
+    const { id: paymentId, url } = await this.paymentService.getStripe(
+      baseUrl,
+      [
+        {
+          quantity: 1,
+          price_data: {
+            currency: 'vnd',
+            product_data: { name },
+            unit_amount: 20000,
+          },
+        },
+      ],
+    );
+    if (!url?.length) {
+      return { url: '' };
+    }
+
+    await this.statusFoodsService.updatePaymentId(statusFoodId, paymentId);
+
+    return { url };
+  }
+
+  @NoRoleGuard()
   @Put('/sessions/:id')
   async updateFoodSession(
     @Headers() headers: HeadersBaseModel,
     @Param() param: UpdateFoodSessionParamModel,
-  ) {
+  ): Promise<UpdateFoodSessionResponseModel> {
     const token = headers[config.tokenName];
     const { id } = param;
 
-    const statusFood = await this.statusFoodsService.getStatusFood(id);
-    const user = (await this.usersService.getUserFromToken(token))!;
+    const statusFood = await this.statusFoodsService.get(id);
+    const user = (await this.usersService.getByToken(token))!;
 
     if (user.role === RoleEnum.USER && user.id !== statusFood.userId) {
       exceptionUtils.role();
@@ -188,10 +226,7 @@ export class FoodsController {
       exceptionUtils.role();
     }
 
-    if (
-      statusFood.status === StatusFoodEnum.PAYMENT &&
-      user.role === RoleEnum.ADMIN
-    ) {
+    if (statusFood.status === StatusFoodEnum.PAYMENT) {
       exceptionUtils.role();
     }
 
@@ -209,34 +244,7 @@ export class FoodsController {
       exceptionUtils.role();
     }
 
-    await this.statusFoodsService.updateNextStatusFood(statusFood.id);
-
-    const title = 'Test Firebase app';
-    const message = 'New food session';
-    const admins = await this.usersService.getUserBy({
-      role: RoleEnum.ADMIN,
-    });
-    const activeAdmins = admins.filter((user) => !!user.deviceId?.length);
-    await Promise.all(
-      activeAdmins.map((admin) =>
-        this.pushNotificationService.send({
-          deviceId: admin.deviceId!,
-          title,
-          message,
-          key: TriggerKeyPushNotificationEnum.STATUS_FOOD,
-        }),
-      ),
-    );
-
-    const { deviceId } = await this.usersService.getUser(statusFood.userId);
-    if (!!deviceId?.length) {
-      await this.pushNotificationService.send({
-        deviceId,
-        title,
-        message,
-        key: TriggerKeyPushNotificationEnum.STATUS_FOOD,
-      });
-    }
+    await this.statusFoodsService.updateNextStatusFood(id);
 
     return null;
   }

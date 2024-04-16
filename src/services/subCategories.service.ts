@@ -7,22 +7,19 @@ import { FoodsService } from './foods.service';
 export class SubCategoriesService {
   constructor(private readonly foodsService: FoodsService) {}
 
-  async addSubCategory(data: SubCategoryModel) {
+  async add(data: SubCategoryModel) {
     const subCategory = await subCategoriesCollection.add(data);
     return subCategory;
   }
 
-  async getAllSubCategories({
-    restaurantId,
-    categoryId,
-  }: GetAllSubCategoriesProps) {
+  async getAll({ restaurantId, categoryId }: GetAllSubCategoriesProps) {
     const subCategories = await subCategoriesCollection.getAll();
 
     if (!restaurantId && !categoryId) {
       return subCategories;
     }
 
-    const foods = await this.foodsService.getAllFoodsBy({
+    const foods = await this.foodsService.getBy({
       restaurantId,
       categoryId,
     });

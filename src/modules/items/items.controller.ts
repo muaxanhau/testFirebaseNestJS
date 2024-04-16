@@ -35,14 +35,14 @@ export class ItemsController {
     @Query('page', ParseIntPipe) page?: number,
   ): Promise<GetAllItemsByCategoryIdResponseModel> {
     const { categoryId } = query;
-    const data = await this.itemsService.getItemsByCategoryId(categoryId, page);
+    const data = await this.itemsService.getByCategoryId(categoryId, page);
     return data;
   }
 
   @NoRoleGuard()
   @Get()
   async getAllItems(): Promise<GetAllItemsResponseModel> {
-    const data = await this.itemsService.getAllItems();
+    const data = await this.itemsService.getAll();
     return data;
   }
 
@@ -55,7 +55,7 @@ export class ItemsController {
       exceptionUtils.notFound();
     }
 
-    const newItem = await this.itemsService.addItem({ ...item, categoryId });
+    const newItem = await this.itemsService.add({ ...item, categoryId });
     return newItem;
   }
 
@@ -64,7 +64,7 @@ export class ItemsController {
     @Param() param: DeleteItemParamModel,
   ): Promise<DeleteItemResponseModel> {
     const { id } = param;
-    await this.itemsService.deleteItem(id);
+    await this.itemsService.delete(id);
 
     return null;
   }

@@ -6,32 +6,25 @@ import Stripe from 'stripe';
 export class PaymentService {
   private stripe = new Stripe(config.stripe.privateKey);
 
-  async getStripeUrl(
+  async getStripe(
     baseUrl: string,
-    items?: Stripe.Checkout.SessionCreateParams.LineItem[],
+    items: Stripe.Checkout.SessionCreateParams.LineItem[],
   ) {
-    const success_url = `${baseUrl}return-urls/payment/stripe/success`;
-    const cancel_url = `${baseUrl}return-urls/payment/stripe/cancel`;
+    if (!items.length) {
+      return { id: '', url: '' };
+    }
+
+    const success_url = `${baseUrl}callbacks/return-url/payments/stripe/success?session_id={CHECKOUT_SESSION_ID}`;
+    const cancel_url = `${baseUrl}callbacks/return-url/payments/stripe/cancel`;
 
     const session = await this.stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       mode: 'payment',
       success_url,
       cancel_url,
-      line_items: [
-        {
-          quantity: 1,
-          price_data: {
-            currency: 'vnd',
-            product_data: {
-              name: 'Food test 1',
-            },
-            unit_amount: 20000,
-          },
-        },
-      ],
+      line_items: items,
     });
-
-    return session.url;
+    const { id, url } = session;
+    return { id, url };
   }
 }

@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import {
   CategoriesService,
   FoodsService,
+  PaymentService,
   PushNotificationService,
   StatusFoodsService,
   SubCategoriesService,
@@ -18,6 +19,7 @@ import { FoodsController } from './foods.controller';
     SubCategoriesService,
     StatusFoodsService,
     PushNotificationService,
+    PaymentService,
   ],
 })
 export class FoodsModule {}
