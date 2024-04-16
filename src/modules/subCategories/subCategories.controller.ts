@@ -17,7 +17,7 @@ export class SubCategoriesController {
   async addDummiesSubCategories() {
     await Promise.all(
       dummySubCategories.map((subCategory) =>
-        this.subCategoriesService.addSubCategory(subCategory),
+        this.subCategoriesService.add(subCategory),
       ),
     );
     return null;
@@ -27,7 +27,7 @@ export class SubCategoriesController {
   async addSubCategory(
     @Body() body: AddSubCategoryBodyModel,
   ): Promise<AddSubCategoryResponseModel> {
-    const data = await this.subCategoriesService.addSubCategory(body);
+    const data = await this.subCategoriesService.add(body);
     return data;
   }
 
@@ -36,7 +36,7 @@ export class SubCategoriesController {
   async getAllSubCategories(
     @Query() query: GetAllSubCategoriesQueryModel,
   ): Promise<GetAllSubCategoriesResponseModel> {
-    const data = await this.subCategoriesService.getAllSubCategories(query);
+    const data = await this.subCategoriesService.getAll(query);
     return data;
   }
 }

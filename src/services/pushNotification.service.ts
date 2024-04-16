@@ -13,8 +13,6 @@ export class PushNotificationService {
           aps: {
             title,
             body: message,
-            // alert: 'You got your emails.',
-            // badge: 999,
           },
         },
       },
@@ -22,12 +20,6 @@ export class PushNotificationService {
         ...data,
         key: key?.toString() || '',
       },
-
-      // android: {
-      //   notification: {
-      //       channelId: '--',
-      //   },
-      // },
     });
   }
 }

@@ -19,7 +19,7 @@ export class UsersController {
   @Post()
   async addUser(@Body() body: AddUserBodyModel): Promise<AddUserResponseModel> {
     const { id, ...newUser } = body;
-    const user = await this.usersService.addUser(id, newUser);
+    const user = await this.usersService.addBy(id, newUser);
     return user;
   }
 
@@ -30,7 +30,7 @@ export class UsersController {
   ): Promise<GetUserSelfResponseModel> {
     const token = headers[config.tokenName];
 
-    const user = (await this.usersService.getUserFromToken(token))!;
+    const user = (await this.usersService.getByToken(token))!;
     return user;
   }
 
@@ -43,7 +43,7 @@ export class UsersController {
     const token = headers[config.tokenName];
     const { deviceId } = body;
 
-    const userId = (await this.usersService.getUserIdFromToken(token))!;
+    const userId = (await this.usersService.getUserIdByToken(token))!;
     await this.usersService.setDeviceId(userId, deviceId);
 
     return null;

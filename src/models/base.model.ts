@@ -1,6 +1,7 @@
 import { IsNotEmpty, IsString } from 'class-validator';
 import { Timestamp } from 'firebase-admin/firestore';
 import { tokenName } from 'src/config';
+import Stripe from 'stripe';
 
 /**
  * response collection for firebase model
@@ -46,3 +47,16 @@ export class HeadersBaseModel {
   @IsString()
   [tokenName]: string;
 }
+
+/**
+ *  stripe webhook response
+ */
+export type StripeWebhookResponseBaseModel = {
+  id: string;
+  type: Stripe.Event.Type;
+  data: {
+    object: {
+      id: string;
+    };
+  };
+};

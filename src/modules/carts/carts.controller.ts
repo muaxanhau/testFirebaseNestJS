@@ -21,9 +21,9 @@ export class CartsController {
 
   @Get('/all')
   async getAllCarts(): Promise<GetAllCartsResponseModel> {
-    const carts = await this.cartsService.getAllCarts();
-    const items = await this.itemsService.getAllItems();
-    const users = await this.usersService.getAllUsers();
+    const carts = await this.cartsService.getAll();
+    const items = await this.itemsService.getAll();
+    const users = await this.usersService.getAll();
 
     const response: GetAllCartsResponseModel = carts.map((rawCart) => {
       const { userId, itemId, ...cart } = rawCart;
@@ -44,9 +44,9 @@ export class CartsController {
     @Headers() headers: HeadersBaseModel,
   ): Promise<GetCartsByUserIdResponseModel> {
     const token = headers[config.tokenName];
-    const userId = (await this.usersService.getUserIdFromToken(token))!;
-    const carts = await this.cartsService.getCartsByUserId(userId);
-    const items = await this.itemsService.getAllItems();
+    const userId = (await this.usersService.getUserIdByToken(token))!;
+    const carts = await this.cartsService.getBy({ userId });
+    const items = await this.itemsService.getAll();
 
     const response = carts.map((rawCart) => {
       const { userId, itemId, ...cart } = rawCart;
@@ -73,14 +73,14 @@ export class CartsController {
     const token = headers[config.tokenName];
     const { itemId, quantity } = body;
 
-    const item = await this.itemsService.getItem(itemId);
+    const item = await this.itemsService.get(itemId);
     if (!item) {
       exceptionUtils.notFound();
     }
 
-    const userId = (await this.usersService.getUserIdFromToken(token))!;
+    const userId = (await this.usersService.getUserIdByToken(token))!;
 
-    const newCart = await this.cartsService.addCart(userId, itemId, quantity);
+    const newCart = await this.cartsService.add(userId, itemId, quantity);
     return newCart;
   }
 }

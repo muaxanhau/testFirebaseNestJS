@@ -12,13 +12,13 @@ export class CategoriesService {
     return existed;
   }
 
-  async getAllCategories({ restaurantId }: GetAllCategoriesProps) {
+  async getAll({ restaurantId }: GetAllCategoriesProps) {
     const categories = await categoriesCollection.getAll();
     if (!restaurantId) {
       return categories;
     }
 
-    const foods = await this.foodsService.getAllFoodsBy({ restaurantId });
+    const foods = await this.foodsService.getBy({ restaurantId });
     const categoriesId = foods.map((food) => food.categoryId);
     const filteredCategories = categories.filter((category) =>
       categoriesId.includes(category.id),
@@ -26,21 +26,21 @@ export class CategoriesService {
     return filteredCategories;
   }
 
-  async getCategory(id: string) {
+  async get(id: string) {
     const category = await categoriesCollection.get(id);
     return category;
   }
 
-  async addCategory(data: CategoryModel) {
+  async add(data: CategoryModel) {
     const category = await categoriesCollection.add(data);
     return category;
   }
 
-  async deleteCategory(id: string) {
+  async delete(id: string) {
     await categoriesCollection.delete(id);
   }
 
-  async updateCategory(id: string, data: CategoryModel) {
+  async update(id: string, data: CategoryModel) {
     await categoriesCollection.edit(id, data);
   }
 }

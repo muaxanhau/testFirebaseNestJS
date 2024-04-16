@@ -10,7 +10,7 @@ import { SubCategoriesModule } from './subCategories/subCategories.module';
 import { FoodsModule } from './foods/foods.module';
 import { TestsModule } from './tests/tests.module';
 import { AuthModule } from './auth/auth.module';
-import { ReturnUrlsModule } from './returnUrl/returnUrl.module';
+import { CallbacksModule } from './callbacks/callbacks.module';
 
 @Module({
   imports: [
@@ -23,7 +23,7 @@ import { ReturnUrlsModule } from './returnUrl/returnUrl.module';
     UsersModule,
     CartsModule,
     RestaurantsModule,
-    ReturnUrlsModule,
+    CallbacksModule,
   ],
   providers: [UsersService, AdminRoleGuard],
 })

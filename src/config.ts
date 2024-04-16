@@ -19,7 +19,7 @@ const environments: EnvironmentsConfigModel = {
 
     stripe: {
       privateKey:
-        'sk_test_51N7rNNDH1g60Ap9g8MmGxF347WrWq6dWMy0a4MtwgKxdUWyO7XPnfyGrLpy2tMsWfVnO8x92Uqc1zE0txuv4lT5a0015FSl9aR',
+        'sk_test_51P62tc2NluRvkR5A8WTc2dfTh9HgjKFyZ2vjkaZMpRgAgLHS6U5rkVieJdwa76wZJ4836s1J8iq4uISS5hQJylRx00dD1CSFpD',
     },
   },
   STAGING: {

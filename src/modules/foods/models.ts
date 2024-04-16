@@ -77,3 +77,15 @@ export class UpdateFoodSessionParamModel {
   @IsString()
   id: string;
 }
+export type UpdateFoodSessionResponseModel = null;
+
+//=====================================================================================================================
+// generateStripePaymentUrl
+export class GenerateStripePaymentUrlParamModel {
+  @IsNotEmpty()
+  @IsString()
+  id: string;
+}
+export type GenerateStripePaymentUrlResponseModel = {
+  url: string | null;
+};

@@ -1,25 +1,25 @@
 import { Injectable } from '@nestjs/common';
 import { firebaseAuth, usersCollection } from 'src/services/firebase';
-import { RoleEnum, UserModel } from 'src/models';
+import { UserModel } from 'src/models';
 
 @Injectable()
 export class UsersService {
-  async addUser(id: string, data: UserModel) {
+  async addBy(id: string, data: UserModel) {
     const user = await usersCollection.addBy(id, data);
     return user;
   }
 
-  async getUser(id: string) {
+  async get(id: string) {
     const user = await usersCollection.get(id);
     return user;
   }
 
-  async getUserBy(conditions: Partial<UserModel>) {
+  async getBy(conditions: Partial<UserModel>) {
     const user = await usersCollection.getBy(conditions);
     return user;
   }
 
-  async getUserIdFromToken(token: string) {
+  async getUserIdByToken(token: string) {
     try {
       const { uid } = await firebaseAuth.verifyIdToken(token);
       return uid;
@@ -28,15 +28,15 @@ export class UsersService {
     }
   }
 
-  async getUserFromToken(token: string) {
-    const id = await this.getUserIdFromToken(token);
+  async getByToken(token: string) {
+    const id = await this.getUserIdByToken(token);
     if (!id) return undefined;
 
     const user = await usersCollection.get(id);
     return user;
   }
 
-  async getAllUsers() {
+  async getAll() {
     const users = await usersCollection.getAll();
     return users;
   }

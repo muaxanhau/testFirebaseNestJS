@@ -39,9 +39,7 @@ export class CategoriesController {
   @Post('/dummies')
   async addDummiesCategories() {
     await Promise.all(
-      dummyCategories.map((category) =>
-        this.categoriesService.addCategory(category),
-      ),
+      dummyCategories.map((category) => this.categoriesService.add(category)),
     );
     return null;
   }
@@ -53,7 +51,7 @@ export class CategoriesController {
   ): Promise<GetAllCategoriesResponseModel> {
     const { restaurantId } = query;
 
-    const data = await this.categoriesService.getAllCategories({
+    const data = await this.categoriesService.getAll({
       restaurantId,
     });
     return data;
@@ -65,8 +63,8 @@ export class CategoriesController {
     @Param() param: GetCategoryWithAllItemsParamModel,
   ): Promise<GetCategoryWithAllItemsResponseModel> {
     const { id } = param;
-    const category = await this.categoriesService.getCategory(id);
-    const { items } = await this.itemsService.getItemsByCategoryId(id);
+    const category = await this.categoriesService.get(id);
+    const { items } = await this.itemsService.getByCategoryId(id);
 
     const categoryWithItems: GetCategoryWithAllItemsResponseModel = {
       ...category,
@@ -79,8 +77,8 @@ export class CategoriesController {
   @NoRoleGuard()
   @Get('/items')
   async getAllCategoriesWithItems(): Promise<GetAllCategoriesWithItemsResponseModel> {
-    const categories = await this.categoriesService.getAllCategories({});
-    const items = await this.itemsService.getAllItems();
+    const categories = await this.categoriesService.getAll({});
+    const items = await this.itemsService.getAll();
 
     const categoriesWithItems: GetAllCategoriesWithItemsResponseModel =
       categories.map((category) => ({
@@ -102,7 +100,7 @@ export class CategoriesController {
     @Param() param: GetCategoryByIdParamModel,
   ): Promise<GetCategoryByIdResponseModel> {
     const { id } = param;
-    const data = await this.categoriesService.getCategory(id);
+    const data = await this.categoriesService.get(id);
     return data;
   }
 
@@ -110,7 +108,7 @@ export class CategoriesController {
   async addCategory(
     @Body() body: AddCategoryBodyModel,
   ): Promise<AddCategoryResponseModel> {
-    const data = await this.categoriesService.addCategory(body);
+    const data = await this.categoriesService.add(body);
     return data;
   }
 
@@ -119,8 +117,8 @@ export class CategoriesController {
     @Param() param: DeleteCategoryParamModel,
   ): Promise<DeleteCategoryResponseModel> {
     const { id } = param;
-    await this.categoriesService.deleteCategory(id);
-    await this.itemsService.deleteAllItemsByCategoryId(id);
+    await this.categoriesService.delete(id);
+    await this.itemsService.deleteBy({ categoryId: id });
     return null;
   }
 
@@ -130,7 +128,7 @@ export class CategoriesController {
     @Body() body: UpdateCategoryBodyModel,
   ): Promise<UpdateCategoryResponseModel> {
     const { id } = param;
-    await this.categoriesService.updateCategory(id, body);
+    await this.categoriesService.update(id, body);
     return null;
   }
 }
