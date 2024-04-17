@@ -4,6 +4,7 @@ export type EnvironmentsConfigModel = Readonly<
   Record<
     EnvironmentList,
     {
+      appName: string;
       enableLog: boolean;
       limitPage: number;
       tokenName: string;

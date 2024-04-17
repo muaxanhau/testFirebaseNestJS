@@ -18,13 +18,10 @@ export class AuthGuard implements CanActivate {
 
     const request = context.switchToHttp().getRequest();
     const token = request.headers[config.tokenName];
-    if (!token) {
-      exceptionUtils.unauthorized();
-    }
+    if (!token) return exceptionUtils.unauthorized();
 
     try {
       await firebaseAuth.verifyIdToken(token);
-
       return true;
     } catch (e) {
       return exceptionUtils.unauthorized();

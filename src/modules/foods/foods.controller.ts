@@ -102,8 +102,7 @@ export class FoodsController {
     @Headers() headers: HeadersBaseModel,
     @Body() body: AddFoodSessionBodyModel,
   ): Promise<AddFoodSessionResponseModel> {
-    const token = headers[config.tokenName];
-    const userId = (await this.usersService.getUserIdByToken(token))!;
+    const userId = (await this.usersService.getUserIdBy(headers))!;
     const { foodId } = body;
 
     const statusFood = await this.statusFoodsService.add({
@@ -113,21 +112,10 @@ export class FoodsController {
       paymentId: '',
     });
 
-    const admins = await this.usersService.getBy({
-      role: RoleEnum.ADMIN,
+    this.pushNotificationService.sendToAllLoggedInAdmins({
+      message: 'New food added',
+      key: TriggerKeyPushNotificationEnum.STATUS_FOOD,
     });
-
-    const activeAdmins = admins.filter((user) => !!user.deviceId?.length);
-    await Promise.all(
-      activeAdmins.map((admin) =>
-        this.pushNotificationService.send({
-          deviceId: admin.deviceId!,
-          title: 'Test Firebase app',
-          message: 'New food session',
-          key: TriggerKeyPushNotificationEnum.STATUS_FOOD,
-        }),
-      ),
-    );
 
     return statusFood;
   }
@@ -137,8 +125,7 @@ export class FoodsController {
   async getFoodSessions(
     @Headers() headers: HeadersBaseModel,
   ): Promise<GetFoodSessionsResponseModel> {
-    const token = headers[config.tokenName];
-    const { id, role } = (await this.usersService.getByToken(token))!;
+    const { id, role } = (await this.usersService.getUserBy(headers))!;
     const foods = await this.foodsService.getAll();
 
     const statusFoods = await (role === RoleEnum.USER
@@ -178,26 +165,28 @@ export class FoodsController {
     const { id: statusFoodId } = param;
     const baseUrl = utils.getBaseUrl(request);
 
-    const { foodId } = await this.statusFoodsService.get(statusFoodId);
-    const { name } = await this.foodsService.get(foodId);
+    const statusFood = await this.statusFoodsService.get(statusFoodId);
+    if (!statusFood) return exceptionUtils.notFound();
 
-    const { id: paymentId, url } = await this.paymentService.getStripe(
-      baseUrl,
-      [
-        {
-          quantity: 1,
-          price_data: {
-            currency: 'vnd',
-            product_data: { name },
-            unit_amount: 20000,
-          },
+    const { foodId } = statusFood;
+    const food = await this.foodsService.get(foodId);
+    if (!food) return exceptionUtils.notFound();
+
+    const { name } = food;
+
+    const stripe = await this.paymentService.getStripe(baseUrl, [
+      {
+        quantity: 1,
+        price_data: {
+          currency: 'vnd',
+          product_data: { name },
+          unit_amount: 20000,
         },
-      ],
-    );
-    if (!url?.length) {
-      return { url: '' };
-    }
+      },
+    ]);
+    if (!stripe || !stripe.url) return exceptionUtils.server();
 
+    const { id: paymentId, url } = stripe;
     await this.statusFoodsService.updatePaymentId(statusFoodId, paymentId);
 
     return { url };
@@ -209,39 +198,21 @@ export class FoodsController {
     @Headers() headers: HeadersBaseModel,
     @Param() param: UpdateFoodSessionParamModel,
   ): Promise<UpdateFoodSessionResponseModel> {
-    const token = headers[config.tokenName];
     const { id } = param;
 
     const statusFood = await this.statusFoodsService.get(id);
-    const user = (await this.usersService.getByToken(token))!;
+    if (!statusFood) return exceptionUtils.notFound();
 
-    if (user.role === RoleEnum.USER && user.id !== statusFood.userId) {
-      exceptionUtils.role();
-    }
+    const isDone = statusFood.status === StatusFoodEnum.DONE;
+    const isPayment = statusFood.status === StatusFoodEnum.PAYMENT;
+    if (isDone || isPayment) return exceptionUtils.role();
 
-    if (
-      statusFood.status === StatusFoodEnum.PENDING &&
-      user.role === RoleEnum.USER
-    ) {
-      exceptionUtils.role();
-    }
-
-    if (statusFood.status === StatusFoodEnum.PAYMENT) {
-      exceptionUtils.role();
-    }
-
-    if (
-      statusFood.status === StatusFoodEnum.WAITING &&
-      user.role === RoleEnum.USER
-    ) {
-      exceptionUtils.role();
-    }
-
-    if (
-      statusFood.status === StatusFoodEnum.DONE &&
-      (user.role === RoleEnum.USER || user.role === RoleEnum.ADMIN)
-    ) {
-      exceptionUtils.role();
+    const user = (await this.usersService.getUserBy(headers))!;
+    if (user.role === RoleEnum.USER) {
+      const invalidUser = user.id !== statusFood.userId;
+      const isPending = statusFood.status === StatusFoodEnum.PENDING;
+      const isWaiting = statusFood.status === StatusFoodEnum.WAITING;
+      if (invalidUser || isPending || isWaiting) return exceptionUtils.role();
     }
 
     await this.statusFoodsService.updateNextStatusFood(id);

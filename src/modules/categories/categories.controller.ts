@@ -26,7 +26,7 @@ import {
   GetAllCategoriesQueryModel,
 } from './models';
 import { NoRoleGuard } from 'src/decorators';
-import { dummyCategories } from 'src/utils';
+import { dummyCategories, exceptionUtils } from 'src/utils';
 import { firebaseMessaging } from 'src/services/firebase';
 
 @Controller('/categories')
@@ -50,10 +50,10 @@ export class CategoriesController {
     @Query() query: GetAllCategoriesQueryModel,
   ): Promise<GetAllCategoriesResponseModel> {
     const { restaurantId } = query;
-
     const data = await this.categoriesService.getAll({
       restaurantId,
     });
+
     return data;
   }
 
@@ -63,9 +63,11 @@ export class CategoriesController {
     @Param() param: GetCategoryWithAllItemsParamModel,
   ): Promise<GetCategoryWithAllItemsResponseModel> {
     const { id } = param;
-    const category = await this.categoriesService.get(id);
-    const { items } = await this.itemsService.getByCategoryId(id);
 
+    const category = await this.categoriesService.get(id);
+    if (!category) return exceptionUtils.notFound();
+
+    const { items } = await this.itemsService.getByCategoryId(id);
     const categoryWithItems: GetCategoryWithAllItemsResponseModel = {
       ...category,
       items,
@@ -101,6 +103,8 @@ export class CategoriesController {
   ): Promise<GetCategoryByIdResponseModel> {
     const { id } = param;
     const data = await this.categoriesService.get(id);
+    if (!data) return exceptionUtils.notFound();
+
     return data;
   }
 

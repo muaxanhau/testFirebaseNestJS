@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { firebaseAuth, usersCollection } from 'src/services/firebase';
-import { UserModel } from 'src/models';
+import { HeadersBaseModel, UserModel } from 'src/models';
+import { config } from 'src/config';
 
 @Injectable()
 export class UsersService {
@@ -19,7 +20,9 @@ export class UsersService {
     return user;
   }
 
-  async getUserIdByToken(token: string) {
+  async getUserIdBy(headers: HeadersBaseModel) {
+    const token = headers[config.tokenName];
+
     try {
       const { uid } = await firebaseAuth.verifyIdToken(token);
       return uid;
@@ -28,8 +31,8 @@ export class UsersService {
     }
   }
 
-  async getByToken(token: string) {
-    const id = await this.getUserIdByToken(token);
+  async getUserBy(headers: HeadersBaseModel) {
+    const id = await this.getUserIdBy(headers);
     if (!id) return undefined;
 
     const user = await usersCollection.get(id);

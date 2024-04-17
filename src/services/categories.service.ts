@@ -1,7 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { categoriesCollection } from 'src/services/firebase';
-import { CategoryModel, deletedLine } from 'src/models';
+import { CategoryModel } from 'src/models';
 import { FoodsService } from './foods.service';
+
+type GetAllCategoriesProps = {
+  restaurantId?: string;
+};
 
 @Injectable()
 export class CategoriesService {
@@ -44,7 +48,3 @@ export class CategoriesService {
     await categoriesCollection.edit(id, data);
   }
 }
-
-type GetAllCategoriesProps = {
-  restaurantId?: string;
-};

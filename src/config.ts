@@ -3,6 +3,7 @@ import { EnvironmentsConfigModel } from './models';
 export const tokenName = 'firebase-token';
 const environments: EnvironmentsConfigModel = {
   DEVELOPMENT: {
+    appName: 'Test Firebase app',
     enableLog: true,
     tokenName,
     limitPage: 2,
@@ -23,6 +24,7 @@ const environments: EnvironmentsConfigModel = {
     },
   },
   STAGING: {
+    appName: 'Test Firebase app',
     enableLog: true,
     tokenName,
     limitPage: 2,
@@ -43,6 +45,7 @@ const environments: EnvironmentsConfigModel = {
     },
   },
   PRODUCTION: {
+    appName: 'Test Firebase app',
     enableLog: false,
     tokenName,
     limitPage: 10,

@@ -130,6 +130,10 @@ class Collection<T extends Object & AddPrefixToKeys<string, any>> {
 
   async get(id: string) {
     const rawRecord = await this.collection.doc(id).get();
+    if (!rawRecord.exists) {
+      return undefined;
+    }
+
     const record: FirestoreBaseModel<T> = {
       id: rawRecord.id,
       ...(rawRecord.data() as T),
@@ -205,7 +209,7 @@ class Collection<T extends Object & AddPrefixToKeys<string, any>> {
   async edit(id: string, data: Partial<T>) {
     await this.collection.doc(id).update(data);
 
-    const record: FirestoreBaseModel<T> = await this.get(id);
+    const record = await this.get(id);
     return record;
   }
 

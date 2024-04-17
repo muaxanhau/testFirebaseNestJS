@@ -1,17 +1,31 @@
 import { Injectable } from '@nestjs/common';
 import { firebaseMessaging } from './firebase';
-import { TriggerKeyPushNotificationEnum } from 'src/models';
+import { RoleEnum, TriggerKeyPushNotificationEnum } from 'src/models';
+import { UsersService } from './users.service';
+import { config } from 'src/config';
+
+type PushNotificationProps = {
+  message: string;
+  key?: TriggerKeyPushNotificationEnum;
+  data?: { [key: string]: string };
+};
+type SendProps = {
+  deviceId: string;
+} & PushNotificationProps;
+type SendToAllLoggedInAdminsProps = PushNotificationProps;
 
 @Injectable()
 export class PushNotificationService {
-  async send({ deviceId, title, message, data, key }: SendProps) {
+  constructor(private readonly usersService: UsersService) {}
+
+  async send({ deviceId, message, data, key }: SendProps) {
     await firebaseMessaging.send({
       token: deviceId,
-      notification: { title, body: message },
+      notification: { title: config.appName, body: message },
       apns: {
         payload: {
           aps: {
-            title,
+            title: config.appName,
             body: message,
           },
         },
@@ -22,12 +36,20 @@ export class PushNotificationService {
       },
     });
   }
-}
 
-type SendProps = {
-  deviceId: string;
-  title: string;
-  message: string;
-  key?: TriggerKeyPushNotificationEnum;
-  data?: { [key: string]: string };
-};
+  async sendToAllLoggedInAdmins({
+    message,
+    data,
+    key,
+  }: SendToAllLoggedInAdminsProps) {
+    const admins = await this.usersService.getBy({
+      role: RoleEnum.ADMIN,
+    });
+    const loggedInAdmins = admins.filter((user) => !!user.deviceId?.length);
+    await Promise.all(
+      loggedInAdmins.map((admin) =>
+        this.send({ deviceId: admin.deviceId!, message, key, data }),
+      ),
+    );
+  }
+}

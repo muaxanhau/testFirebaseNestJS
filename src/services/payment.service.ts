@@ -10,18 +10,14 @@ export class PaymentService {
     baseUrl: string,
     items: Stripe.Checkout.SessionCreateParams.LineItem[],
   ) {
-    if (!items.length) {
-      return { id: '', url: '' };
-    }
+    if (!items.length) return undefined;
 
-    const success_url = `${baseUrl}callbacks/return-url/payments/stripe/success?session_id={CHECKOUT_SESSION_ID}`;
-    const cancel_url = `${baseUrl}callbacks/return-url/payments/stripe/cancel`;
-
+    const baseReturnUrl = `${baseUrl}callbacks/return-url/payments/stripe/`;
     const session = await this.stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       mode: 'payment',
-      success_url,
-      cancel_url,
+      success_url: `${baseReturnUrl}success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${baseReturnUrl}cancel`,
       line_items: items,
     });
     const { id, url } = session;
