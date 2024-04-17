@@ -2,6 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { foodsCollection, restaurantAndFoodsCollection } from './firebase';
 import { FoodModel } from 'src/models';
 
+type GetAllFoodsByProps = {
+  restaurantId?: string;
+  categoryId?: string;
+  subCategoryId?: string;
+};
+
 @Injectable()
 export class FoodsService {
   async add(data: FoodModel) {
@@ -30,9 +36,3 @@ export class FoodsService {
     return filteredFoods;
   }
 }
-
-type GetAllFoodsByProps = {
-  restaurantId?: string;
-  categoryId?: string;
-  subCategoryId?: string;
-};

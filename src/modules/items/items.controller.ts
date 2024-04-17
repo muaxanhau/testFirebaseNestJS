@@ -51,15 +51,13 @@ export class ItemsController {
     const { categoryId, ...item } = body;
 
     const existed = await this.categoriesService.exist(categoryId);
-    if (!existed) {
-      exceptionUtils.notFound();
-    }
+    if (!existed) return exceptionUtils.notFound();
 
     const newItem = await this.itemsService.add({ ...item, categoryId });
     return newItem;
   }
 
-  @Delete(':id')
+  @Delete('/:id')
   async deleteItem(
     @Param() param: DeleteItemParamModel,
   ): Promise<DeleteItemResponseModel> {

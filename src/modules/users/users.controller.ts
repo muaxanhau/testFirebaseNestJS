@@ -1,15 +1,26 @@
-import { Body, Controller, Get, Headers, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Headers,
+  Param,
+  Post,
+  Put,
+} from '@nestjs/common';
 import { UsersService } from 'src/services';
 import {
   AddUserBodyModel,
   AddUserResponseModel,
+  DisableDeviceIdParamModel,
+  DisableDeviceIdResponseModel,
   GetUserSelfResponseModel,
   SetupUserBodyModel,
   SetupUserResponseModel,
 } from './models';
 import { HeadersBaseModel } from 'src/models';
 import { NoAuthGuard, NoRoleGuard } from 'src/decorators';
-import { config } from 'src/config';
+import { exceptionUtils } from 'src/utils';
 
 @Controller('/users')
 export class UsersController {
@@ -20,6 +31,8 @@ export class UsersController {
   async addUser(@Body() body: AddUserBodyModel): Promise<AddUserResponseModel> {
     const { id, ...newUser } = body;
     const user = await this.usersService.addBy(id, newUser);
+    if (!user) return exceptionUtils.notFound();
+
     return user;
   }
 
@@ -28,9 +41,7 @@ export class UsersController {
   async getUserSelf(
     @Headers() headers: HeadersBaseModel,
   ): Promise<GetUserSelfResponseModel> {
-    const token = headers[config.tokenName];
-
-    const user = (await this.usersService.getByToken(token))!;
+    const user = (await this.usersService.getUserBy(headers))!;
     return user;
   }
 
@@ -40,11 +51,25 @@ export class UsersController {
     @Headers() headers: HeadersBaseModel,
     @Body() body: SetupUserBodyModel,
   ): Promise<SetupUserResponseModel> {
-    const token = headers[config.tokenName];
     const { deviceId } = body;
 
-    const userId = (await this.usersService.getUserIdByToken(token))!;
+    const userId = (await this.usersService.getUserIdBy(headers))!;
     await this.usersService.setDeviceId(userId, deviceId);
+
+    return null;
+  }
+
+  @NoAuthGuard()
+  @Delete('/device-id/:id')
+  async disableDeviceId(
+    @Param() param: DisableDeviceIdParamModel,
+  ): Promise<DisableDeviceIdResponseModel> {
+    const { id } = param;
+
+    const users = await this.usersService.getBy({ deviceId: id });
+    const userIds = users.map((user) => user.id);
+
+    Promise.all(userIds.map((id) => this.usersService.setDeviceId(id, '')));
 
     return null;
   }

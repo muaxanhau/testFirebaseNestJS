@@ -6,7 +6,7 @@ type Prettify<T> = {
 
 const getBaseUrl = (request: Request) => {
   const host = request.headers['host'] as string;
-  let baseUrl = `${host}${config.prefix}/`;
+  let baseUrl = `${host}${config.prefix}`;
   if (!baseUrl.includes('http')) {
     baseUrl = `http://${baseUrl}`;
   }

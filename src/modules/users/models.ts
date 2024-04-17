@@ -26,3 +26,13 @@ export class SetupUserBodyModel {
   deviceId: string;
 }
 export type SetupUserResponseModel = null;
+
+//=====================================================================================================================
+// disableDeviceId
+
+export class DisableDeviceIdParamModel {
+  @IsNotEmpty()
+  @IsString()
+  id: string;
+}
+export type DisableDeviceIdResponseModel = null;

@@ -1,7 +1,6 @@
-import { Controller, Get, Post, Headers, Req, Body } from '@nestjs/common';
-import { config } from 'src/config';
-import { NoAuthGuard, NoRoleGuard } from 'src/decorators';
-import { HeadersBaseModel, StripeWebhookResponseBaseModel } from 'src/models';
+import { Controller, Get, Post, Headers, Req } from '@nestjs/common';
+import { NoRoleGuard } from 'src/decorators';
+import { HeadersBaseModel } from 'src/models';
 import {
   PaymentService,
   PushNotificationService,
@@ -13,7 +12,6 @@ import {
   UnauthorizeResponse,
 } from './models';
 import { exceptionUtils, utils } from 'src/utils';
-import { Stripe } from 'stripe';
 
 @Controller('/tests')
 export class TestsController {
@@ -28,14 +26,11 @@ export class TestsController {
   async pushNotification(
     @Headers() headers: HeadersBaseModel,
   ): Promise<PushNotificationResponse> {
-    const token = headers[config.tokenName];
-
-    const { deviceId } = (await this.usersService.getByToken(token))!;
+    const { deviceId } = (await this.usersService.getUserBy(headers))!;
     if (!deviceId?.length) return null;
 
-    const title = 'App Test';
     const message = 'Message from PN server';
-    this.pushNotificationService.send({ deviceId, title, message });
+    this.pushNotificationService.send({ deviceId, message });
 
     return null;
   }
@@ -43,7 +38,7 @@ export class TestsController {
   @NoRoleGuard()
   @Get('/unauthorize')
   async unauthorize(): Promise<UnauthorizeResponse> {
-    exceptionUtils.unauthorized();
+    return exceptionUtils.unauthorized();
   }
 
   @NoRoleGuard()
@@ -53,7 +48,7 @@ export class TestsController {
   ): Promise<GetStripePaymentResponse> {
     const baseUrl = utils.getBaseUrl(request);
 
-    const { id, url } = await this.paymentService.getStripe(baseUrl, [
+    const stripe = await this.paymentService.getStripe(baseUrl, [
       {
         quantity: 1,
         price_data: {
@@ -65,12 +60,9 @@ export class TestsController {
         },
       },
     ]);
-    if (!url?.length) {
-      return { url: '' };
-    }
+    if (!stripe || !stripe.url) return exceptionUtils.server();
 
-    // id
-
+    const { url } = stripe;
     return { url };
   }
 }

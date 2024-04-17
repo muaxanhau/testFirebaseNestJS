@@ -26,8 +26,7 @@ import {
   GetAllCategoriesQueryModel,
 } from './models';
 import { NoRoleGuard } from 'src/decorators';
-import { dummyCategories } from 'src/utils';
-import { firebaseMessaging } from 'src/services/firebase';
+import { dummyCategories, exceptionUtils } from 'src/utils';
 
 @Controller('/categories')
 export class CategoriesController {
@@ -50,22 +49,24 @@ export class CategoriesController {
     @Query() query: GetAllCategoriesQueryModel,
   ): Promise<GetAllCategoriesResponseModel> {
     const { restaurantId } = query;
-
     const data = await this.categoriesService.getAll({
       restaurantId,
     });
+
     return data;
   }
 
   @NoRoleGuard()
-  @Get(':id/items')
+  @Get('/:id/items')
   async getCategoryWithAllItems(
     @Param() param: GetCategoryWithAllItemsParamModel,
   ): Promise<GetCategoryWithAllItemsResponseModel> {
     const { id } = param;
-    const category = await this.categoriesService.get(id);
-    const { items } = await this.itemsService.getByCategoryId(id);
 
+    const category = await this.categoriesService.get(id);
+    if (!category) return exceptionUtils.notFound();
+
+    const { items } = await this.itemsService.getByCategoryId(id);
     const categoryWithItems: GetCategoryWithAllItemsResponseModel = {
       ...category,
       items,
@@ -95,12 +96,14 @@ export class CategoriesController {
   }
 
   @NoRoleGuard()
-  @Get(':id')
+  @Get('/:id')
   async getCategory(
     @Param() param: GetCategoryByIdParamModel,
   ): Promise<GetCategoryByIdResponseModel> {
     const { id } = param;
     const data = await this.categoriesService.get(id);
+    if (!data) return exceptionUtils.notFound();
+
     return data;
   }
 
@@ -112,23 +115,25 @@ export class CategoriesController {
     return data;
   }
 
-  @Delete(':id')
+  @Delete('/:id')
   async deleteCategory(
     @Param() param: DeleteCategoryParamModel,
   ): Promise<DeleteCategoryResponseModel> {
     const { id } = param;
     await this.categoriesService.delete(id);
     await this.itemsService.deleteBy({ categoryId: id });
+
     return null;
   }
 
-  @Put(':id')
+  @Put('/:id')
   async updateCategory(
     @Param() param: UpdateCategoryParamModel,
     @Body() body: UpdateCategoryBodyModel,
   ): Promise<UpdateCategoryResponseModel> {
     const { id } = param;
     await this.categoriesService.update(id, body);
+
     return null;
   }
 }

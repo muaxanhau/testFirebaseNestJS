@@ -9,12 +9,10 @@ import { RestaurantsModule } from './restaurants/restaurants.module';
 import { SubCategoriesModule } from './subCategories/subCategories.module';
 import { FoodsModule } from './foods/foods.module';
 import { TestsModule } from './tests/tests.module';
-import { AuthModule } from './auth/auth.module';
 import { CallbacksModule } from './callbacks/callbacks.module';
 
 @Module({
   imports: [
-    AuthModule,
     TestsModule,
     CategoriesModule,
     SubCategoriesModule,

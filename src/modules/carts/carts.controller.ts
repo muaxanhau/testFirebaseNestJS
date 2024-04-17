@@ -7,7 +7,6 @@ import {
   GetCartsByUserIdResponseModel,
 } from './models';
 import { HeadersBaseModel } from 'src/models';
-import { config } from 'src/config';
 import { NoRoleGuard } from 'src/decorators';
 import { exceptionUtils } from 'src/utils';
 
@@ -43,8 +42,7 @@ export class CartsController {
   async getCartsByUserId(
     @Headers() headers: HeadersBaseModel,
   ): Promise<GetCartsByUserIdResponseModel> {
-    const token = headers[config.tokenName];
-    const userId = (await this.usersService.getUserIdByToken(token))!;
+    const userId = (await this.usersService.getUserIdBy(headers))!;
     const carts = await this.cartsService.getBy({ userId });
     const items = await this.itemsService.getAll();
 
@@ -70,17 +68,13 @@ export class CartsController {
     @Headers() headers: HeadersBaseModel,
     @Body() body: AddCartBodyModel,
   ): Promise<AddCartResponseModel> {
-    const token = headers[config.tokenName];
     const { itemId, quantity } = body;
-
     const item = await this.itemsService.get(itemId);
-    if (!item) {
-      exceptionUtils.notFound();
-    }
+    if (!item) return exceptionUtils.notFound();
 
-    const userId = (await this.usersService.getUserIdByToken(token))!;
-
+    const userId = (await this.usersService.getUserIdBy(headers))!;
     const newCart = await this.cartsService.add(userId, itemId, quantity);
+
     return newCart;
   }
 }

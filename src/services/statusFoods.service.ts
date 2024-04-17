@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { statusFoodsCollection } from './firebase';
 import {
-  RoleEnum,
   StatusFoodEnum,
   StatusFoodModel,
   TriggerKeyPushNotificationEnum,
 } from 'src/models';
 import { UsersService } from './users.service';
 import { PushNotificationService } from './pushNotification.service';
+import { exceptionUtils } from 'src/utils';
 
 @Injectable()
 export class StatusFoodsService {
@@ -37,7 +37,10 @@ export class StatusFoodsService {
   }
 
   async updateNextStatusFood(id: string) {
-    const { status, userId } = await this.get(id);
+    const statusFood = await this.get(id);
+    if (!statusFood) return exceptionUtils.notFound();
+
+    const { status, userId } = statusFood!;
     const nextStatus =
       status === StatusFoodEnum.PENDING
         ? StatusFoodEnum.PAYMENT
@@ -46,29 +49,19 @@ export class StatusFoodsService {
           : StatusFoodEnum.DONE;
     statusFoodsCollection.edit(id, { status: nextStatus });
 
-    const title = 'Test Firebase app';
     const message = 'Status food updated';
-
-    const admins = await this.usersService.getBy({
-      role: RoleEnum.ADMIN,
+    this.pushNotificationService.sendToAllLoggedInAdmins({
+      message,
+      key: TriggerKeyPushNotificationEnum.STATUS_FOOD,
     });
-    const loggedInAdmins = admins.filter((user) => !!user.deviceId?.length);
-    await Promise.all(
-      loggedInAdmins.map((admin) =>
-        this.pushNotificationService.send({
-          deviceId: admin.deviceId!,
-          title,
-          message,
-          key: TriggerKeyPushNotificationEnum.STATUS_FOOD,
-        }),
-      ),
-    );
 
-    const { deviceId } = await this.usersService.get(userId);
-    if (!!deviceId?.length) {
+    const user = await this.usersService.get(userId);
+    if (!user) return exceptionUtils.notFound();
+
+    const validDeviceId = !!user.deviceId?.length;
+    if (validDeviceId) {
       await this.pushNotificationService.send({
-        deviceId,
-        title,
+        deviceId: user.deviceId!,
         message,
         key: TriggerKeyPushNotificationEnum.STATUS_FOOD,
       });
