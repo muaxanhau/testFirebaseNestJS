@@ -1,15 +1,25 @@
-import { Body, Controller, Get, Headers, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Headers,
+  Param,
+  Post,
+  Put,
+} from '@nestjs/common';
 import { UsersService } from 'src/services';
 import {
   AddUserBodyModel,
   AddUserResponseModel,
+  DisableDeviceIdParamModel,
+  DisableDeviceIdResponseModel,
   GetUserSelfResponseModel,
   SetupUserBodyModel,
   SetupUserResponseModel,
 } from './models';
 import { HeadersBaseModel } from 'src/models';
 import { NoAuthGuard, NoRoleGuard } from 'src/decorators';
-import { config } from 'src/config';
 import { exceptionUtils } from 'src/utils';
 
 @Controller('/users')
@@ -45,6 +55,21 @@ export class UsersController {
 
     const userId = (await this.usersService.getUserIdBy(headers))!;
     await this.usersService.setDeviceId(userId, deviceId);
+
+    return null;
+  }
+
+  @NoAuthGuard()
+  @Delete('/device-id/:id')
+  async disableDeviceId(
+    @Param() param: DisableDeviceIdParamModel,
+  ): Promise<DisableDeviceIdResponseModel> {
+    const { id } = param;
+
+    const users = await this.usersService.getBy({ deviceId: id });
+    const userIds = users.map((user) => user.id);
+
+    Promise.all(userIds.map((id) => this.usersService.setDeviceId(id, '')));
 
     return null;
   }

@@ -19,20 +19,15 @@ export class PushNotificationService {
   constructor(private readonly usersService: UsersService) {}
 
   async send({ deviceId, message, data, key }: SendProps) {
+    const title = config.appName;
+    const body = message;
     await firebaseMessaging.send({
       token: deviceId,
-      notification: { title: config.appName, body: message },
-      apns: {
-        payload: {
-          aps: {
-            title: config.appName,
-            body: message,
-          },
-        },
-      },
+      notification: { title, body },
+      apns: { payload: { aps: { title, body } } },
       data: {
         ...data,
-        key: key?.toString() || '',
+        key: key || '',
       },
     });
   }

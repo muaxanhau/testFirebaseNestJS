@@ -173,7 +173,6 @@ export class FoodsController {
     if (!food) return exceptionUtils.notFound();
 
     const { name } = food;
-
     const stripe = await this.paymentService.getStripe(baseUrl, [
       {
         quantity: 1,

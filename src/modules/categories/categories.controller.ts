@@ -27,7 +27,6 @@ import {
 } from './models';
 import { NoRoleGuard } from 'src/decorators';
 import { dummyCategories, exceptionUtils } from 'src/utils';
-import { firebaseMessaging } from 'src/services/firebase';
 
 @Controller('/categories')
 export class CategoriesController {
@@ -58,7 +57,7 @@ export class CategoriesController {
   }
 
   @NoRoleGuard()
-  @Get(':id/items')
+  @Get('/:id/items')
   async getCategoryWithAllItems(
     @Param() param: GetCategoryWithAllItemsParamModel,
   ): Promise<GetCategoryWithAllItemsResponseModel> {
@@ -97,7 +96,7 @@ export class CategoriesController {
   }
 
   @NoRoleGuard()
-  @Get(':id')
+  @Get('/:id')
   async getCategory(
     @Param() param: GetCategoryByIdParamModel,
   ): Promise<GetCategoryByIdResponseModel> {
@@ -116,23 +115,25 @@ export class CategoriesController {
     return data;
   }
 
-  @Delete(':id')
+  @Delete('/:id')
   async deleteCategory(
     @Param() param: DeleteCategoryParamModel,
   ): Promise<DeleteCategoryResponseModel> {
     const { id } = param;
     await this.categoriesService.delete(id);
     await this.itemsService.deleteBy({ categoryId: id });
+
     return null;
   }
 
-  @Put(':id')
+  @Put('/:id')
   async updateCategory(
     @Param() param: UpdateCategoryParamModel,
     @Body() body: UpdateCategoryBodyModel,
   ): Promise<UpdateCategoryResponseModel> {
     const { id } = param;
     await this.categoriesService.update(id, body);
+
     return null;
   }
 }

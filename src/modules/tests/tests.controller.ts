@@ -1,7 +1,6 @@
-import { Controller, Get, Post, Headers, Req, Body } from '@nestjs/common';
-import { config } from 'src/config';
-import { NoAuthGuard, NoRoleGuard } from 'src/decorators';
-import { HeadersBaseModel, StripeWebhookResponseBaseModel } from 'src/models';
+import { Controller, Get, Post, Headers, Req } from '@nestjs/common';
+import { NoRoleGuard } from 'src/decorators';
+import { HeadersBaseModel } from 'src/models';
 import {
   PaymentService,
   PushNotificationService,
@@ -13,7 +12,6 @@ import {
   UnauthorizeResponse,
 } from './models';
 import { exceptionUtils, utils } from 'src/utils';
-import { Stripe } from 'stripe';
 
 @Controller('/tests')
 export class TestsController {

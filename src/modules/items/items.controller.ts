@@ -57,7 +57,7 @@ export class ItemsController {
     return newItem;
   }
 
-  @Delete(':id')
+  @Delete('/:id')
   async deleteItem(
     @Param() param: DeleteItemParamModel,
   ): Promise<DeleteItemResponseModel> {

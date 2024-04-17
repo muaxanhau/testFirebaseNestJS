@@ -7,7 +7,6 @@ import {
   GetCartsByUserIdResponseModel,
 } from './models';
 import { HeadersBaseModel } from 'src/models';
-import { config } from 'src/config';
 import { NoRoleGuard } from 'src/decorators';
 import { exceptionUtils } from 'src/utils';
 

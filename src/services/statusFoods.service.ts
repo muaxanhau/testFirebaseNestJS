@@ -38,10 +38,7 @@ export class StatusFoodsService {
 
   async updateNextStatusFood(id: string) {
     const statusFood = await this.get(id);
-    if (!statusFood) {
-      exceptionUtils.notFound();
-      return;
-    }
+    if (!statusFood) return exceptionUtils.notFound();
 
     const { status, userId } = statusFood!;
     const nextStatus =
@@ -53,17 +50,14 @@ export class StatusFoodsService {
     statusFoodsCollection.edit(id, { status: nextStatus });
 
     const message = 'Status food updated';
-
     this.pushNotificationService.sendToAllLoggedInAdmins({
       message,
       key: TriggerKeyPushNotificationEnum.STATUS_FOOD,
     });
 
     const user = await this.usersService.get(userId);
-    if (!user) {
-      exceptionUtils.notFound();
-      return;
-    }
+    if (!user) return exceptionUtils.notFound();
+
     const validDeviceId = !!user.deviceId?.length;
     if (validDeviceId) {
       await this.pushNotificationService.send({
